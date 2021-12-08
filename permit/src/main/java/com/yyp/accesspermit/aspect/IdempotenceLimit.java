@@ -2,6 +2,7 @@ package com.yyp.accesspermit.aspect;
 
 import com.yyp.accesspermit.annotation.ApiIdempotence;
 import com.yyp.accesspermit.util.ParamUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -15,9 +16,11 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -44,7 +47,6 @@ public class IdempotenceLimit {
 
     private final String IDEMPOTENCE_KEY = "idempotence@";
 
-
     @Pointcut("@annotation(com.yyp.accesspermit.annotation.ApiIdempotence)")
     public void idempotence() {
     }
@@ -55,9 +57,27 @@ public class IdempotenceLimit {
         Method method = methodSignature.getMethod();
         ApiIdempotence annotation = method.getAnnotation(ApiIdempotence.class);
         long time = annotation.time();
+        RLock lock = getLock(annotation, point);
+        if (!lock.isLocked()) {
+            if (time > 0 ? lock.tryLock(0, time, annotation.unit()) : lock.tryLock()) {
+                try {
+                    return ((ProceedingJoinPoint) point).proceed();
+                } finally {
+                    lock.unlock();
+                }
+            } else {
+                return returnObject(annotation, method, lock);
+            }
+        } else
+            return returnObject(annotation, method, lock);
+    }
+
+    private RLock getLock(ApiIdempotence annotation, JoinPoint point) {
+        RLock lock;
+        MethodSignature methodSignature = (MethodSignature) point.getSignature();
+        Method method = methodSignature.getMethod();
         int[] indexes = annotation.indexes();
         String[] names = annotation.names();
-        RLock lock;
         if (StringUtils.hasText(annotation.lock()))
             lock = redissonClient.getLock(IDEMPOTENCE_KEY + annotation.lock());
         else if (indexes.length != 0 || names.length != 0) {
@@ -77,21 +97,11 @@ public class IdempotenceLimit {
             lock = redissonClient.getLock(IDEMPOTENCE_KEY + ParamUtil.getKeyMD5(method.getName(), collect.isEmpty() ? point.getArgs() : collect.toArray()));
         } else
             lock = redissonClient.getLock(IDEMPOTENCE_KEY + ParamUtil.getKeyMD5(method.getName(), point.getArgs()));
-        if (!lock.isLocked()) {
-            if (time > 0 ? lock.tryLock(0, time, annotation.unit()) : lock.tryLock()) {
-                try {
-                    return ((ProceedingJoinPoint) point).proceed();
-                } finally {
-                    lock.unlock();
-                }
-            } else {
-                return returnObject(annotation, lock);
-            }
-        } else
-            return returnObject(annotation, lock);
+        return lock;
     }
 
-    private Object returnObject(ApiIdempotence annotation, RLock lock) {
+    @SneakyThrows
+    private Object returnObject(ApiIdempotence annotation, Method method, RLock lock) {
         String msg = annotation.message();
         if (annotation.schedule() && annotation.time() > 0) {
             DecimalFormat df = new DecimalFormat("0%");
@@ -99,7 +109,15 @@ public class IdempotenceLimit {
             msg = msg.concat(" 进度为：" + format);
         }
         Assert.isTrue(!annotation.reject().equals(RejectStrategy.VIOLENCE), msg);
-//        return ResultUtil.success(msg);
-        return null;
+        Object o = method.getReturnType().newInstance();
+        Field msgF = ReflectionUtils.findField(o.getClass(), "msg", String.class);
+        if (msgF != null) {
+            boolean accessible = msgF.isAccessible();
+            msgF.setAccessible(true);
+            ReflectionUtils.setField(msgF, o, msg);
+            msgF.setAccessible(accessible);
+            return o;
+        }
+        return msg;
     }
 }

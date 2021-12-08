@@ -12,6 +12,16 @@ import java.util.List;
 
 public class AnnotationUtil {
 
+    private String msg;
+
+    public String getA() {
+        return msg;
+    }
+
+    public void setA(String a) {
+        this.msg = a;
+    }
+
     public static boolean existsAnnotation(Class targetClass, Class<? extends Annotation> annotationType) {
         List<Method> mes = getMethods(targetClass);
         for (int i = 0; i < mes.size(); i++) {
