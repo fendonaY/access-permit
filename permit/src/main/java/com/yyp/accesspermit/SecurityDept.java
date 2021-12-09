@@ -1,7 +1,5 @@
 package com.yyp.accesspermit;
 
-import com.yyp.accesspermit.util.PermitToken;
-
 import java.util.List;
 
 public interface SecurityDept {

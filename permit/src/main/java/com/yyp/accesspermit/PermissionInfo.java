@@ -1,7 +1,6 @@
 package com.yyp.accesspermit;
 
 import com.yyp.accesspermit.aspect.RejectStrategy;
-import com.yyp.accesspermit.util.PermitToken;
 import lombok.Data;
 
 import java.util.List;

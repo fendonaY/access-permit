@@ -1,4 +1,4 @@
-package com.yyp.accesspermit.util;
+package com.yyp.accesspermit;
 
 import lombok.Data;
 

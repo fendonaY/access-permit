@@ -1,6 +1,5 @@
 package com.yyp.accesspermit;
 
-import com.yyp.accesspermit.util.PermitToken;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
