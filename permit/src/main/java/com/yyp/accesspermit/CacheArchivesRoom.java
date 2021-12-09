@@ -1,6 +1,5 @@
 package com.yyp.accesspermit;
 
-import com.yyp.accesspermit.util.PermitToken;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
 
