@@ -1,5 +1,6 @@
-package com.yyp.accesspermit;
+package com.yyp.accesspermit.support;
 
+import com.yyp.accesspermit.aspect.RejectStrategy;
 import lombok.Data;
 
 @Data
@@ -9,9 +10,13 @@ public class PermitToken {
         ACCESS, REGISTER, VERIFIED
     }
 
+    private PermitToken oldPermitToken;
+
     private boolean verify;
 
     private PermissionPhase phase;
+
+    private RejectStrategy rejectStrategy;
 
     private String explain;
 

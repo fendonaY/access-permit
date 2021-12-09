@@ -1,4 +1,4 @@
-package com.yyp.accesspermit;
+package com.yyp.accesspermit.support;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,7 +8,6 @@ public class DefaultPermissionContext implements PermissionContext {
     private SecurityDept securityDept;
 
     private PermissionInfo permissionInfo;
-
 
     public DefaultPermissionContext() {
     }
@@ -20,7 +19,7 @@ public class DefaultPermissionContext implements PermissionContext {
 
     @Override
     public List<String> getPermits() {
-        return getPermissionInfo().getAnnotationInfo().stream().map(info -> info.getPermit()).collect(Collectors.toList());
+        return getPermissionInfo().getAnnotationInfoList().stream().map(info -> info.getPermit()).collect(Collectors.toList());
     }
 
     @Override

@@ -1,5 +1,8 @@
-package com.yyp.accesspermit;
+package com.yyp.accesspermit.support;
 
+import com.yyp.accesspermit.aspect.RejectStrategy;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -8,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class VerifyRecordDept implements SecurityDept {
+public class VerifyRecordDept implements SecurityDept, InitializingBean {
 
     private List<Verifier> verifierDept = new ArrayList();
 
@@ -59,9 +62,15 @@ public class VerifyRecordDept implements SecurityDept {
             });
         }
         String errorMsg = reports.stream().filter(report -> !report.getValidResult()).map(report -> report.getSuggest()).collect(Collectors.joining(","));
-        if (StringUtils.hasText(errorMsg))
-            return PermitToken.reject(errorMsg);
-        return PermitToken.pass();
+        long count = reports.stream().filter(report -> !report.getValidResult()).filter(report -> RejectStrategy.VIOLENCE.equals(report.getAnnotationInfo().getStrategy())).count();
+
+        PermitToken permitToken;
+        if (StringUtils.hasText(errorMsg)) {
+            permitToken = PermitToken.reject(errorMsg);
+        } else
+            permitToken = PermitToken.pass();
+        permitToken.setRejectStrategy(count > 0 ? RejectStrategy.VIOLENCE : RejectStrategy.GENTLE);
+        return permitToken;
     }
 
     public void addVerifier(Verifier verifier) {
@@ -73,4 +82,8 @@ public class VerifyRecordDept implements SecurityDept {
         vips.add(verifier);
     }
 
+    @Override
+    public void afterPropertiesSet() {
+        Assert.notNull(archivesRoom, "the archives room were not established");
+    }
 }

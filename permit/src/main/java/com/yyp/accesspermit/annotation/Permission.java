@@ -12,7 +12,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)
-@Inherited
 @Repeatable(Permission.List.class)
 public @interface Permission {
 
@@ -80,7 +79,6 @@ public @interface Permission {
      */
     @Target({TYPE, METHOD})
     @Retention(RUNTIME)
-    @Inherited
     @Documented
     @interface List {
 

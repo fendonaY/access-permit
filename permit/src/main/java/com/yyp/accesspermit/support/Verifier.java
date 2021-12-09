@@ -1,4 +1,4 @@
-package com.yyp.accesspermit;
+package com.yyp.accesspermit.support;
 
 public interface Verifier {
 

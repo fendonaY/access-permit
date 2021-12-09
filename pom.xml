@@ -4,7 +4,6 @@
     <modelVersion>4.0.0</modelVersion>
     <modules>
         <module>permit</module>
-        <module>access</module>
         <module>springboot-starter-access-permit</module>
     </modules>
     <parent>

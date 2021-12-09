@@ -90,7 +90,7 @@ public class ParamUtil {
     }
 
     public static String getKeyMD5(String dataKey, Object[] args) {
-        return dataKey + ":" + DigestUtils.md5Digest(JSONArray.toJSONString(args).getBytes(StandardCharsets.UTF_8));
+        return dataKey + "$$" + DigestUtils.md5Digest(JSONArray.toJSONString(args).getBytes(StandardCharsets.UTF_8));
     }
 
     private static Object findKey(String key, Object obj) {

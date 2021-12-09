@@ -1,5 +1,0 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.yyp.ulog.ULogConfiguration,\
- com.yyp.ulog.ULogMapperPostProcessor
-
-org.springframework.context.ApplicationListener=\
-com.yyp.ulog.listener.AppStartLog
