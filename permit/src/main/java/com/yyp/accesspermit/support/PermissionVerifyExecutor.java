@@ -6,10 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author yyp
@@ -55,7 +52,7 @@ public class PermissionVerifyExecutor implements ValidExecutor {
                     data.put(rsMeta.getColumnLabel(i), object);
                 }
                 result.add(data);
-                if (sql.startsWith("SELECT COUNT"))
+                if (sql.toUpperCase(Locale.ROOT).startsWith("SELECT COUNT"))
                     return resultSet.getInt(1);
             }
         } catch (Exception e) {

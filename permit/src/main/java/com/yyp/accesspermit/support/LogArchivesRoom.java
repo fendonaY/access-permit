@@ -15,7 +15,7 @@ public class LogArchivesRoom extends AbstractArchivesRoom {
     }
 
     @Override
-    protected String getReportId(VerifyReport verifyReport) {
+    public String getReportId(VerifyReport verifyReport) {
         return "log@" + super.getReportId(verifyReport);
     }
 
@@ -36,8 +36,8 @@ public class LogArchivesRoom extends AbstractArchivesRoom {
     }
 
     @Override
-    public void update(VerifyReport verifyReport) {
-        cacheArchivesRoom.update(verifyReport);
+    public void update(VerifyReport oldReport, VerifyReport newReport) {
+        cacheArchivesRoom.update(oldReport,newReport);
     }
 
 }

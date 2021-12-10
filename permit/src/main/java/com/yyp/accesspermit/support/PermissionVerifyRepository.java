@@ -17,25 +17,27 @@ public class PermissionVerifyRepository {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private DataSource dataSource = (DataSource) getBean(DataSource.class);
+    private DataSource dataSource;
 
     private ApplicationContext beanFactory;
 
-    private HashMap<String, String> sqlRepository = new HashMap(16);
+    private HashMap<String, String> permitRepository = new HashMap(16);
 
-    private String repository_query = "SELECT PERMIT,EXEC_PERMIT FROM permit_dict";
+    private final String repository_query = "SELECT PERMIT,EXEC_PERMIT FROM permit_dict";
 
     private static PermissionVerifyRepository repository;
 
     public PermissionVerifyRepository(ApplicationContext beanFactory) {
         this.beanFactory = beanFactory;
+        this.dataSource = (DataSource) getBean(DataSource.class);
     }
 
     public PermissionVerifyRepository initRepository() {
-        ValidExecutor validExecutor = getExecutor(repository_query, new Object[0]);
-        int verify_warehouse_start_init = validExecutor.execute(executor -> logger.info("verify warehouse start init"));
-        Assert.state(verify_warehouse_start_init == -1, "verify warehouse initialization failed");
-        validExecutor.getResult().forEach(dataMap -> sqlRepository.put((String) dataMap.get("PERMIT"), (String) dataMap.get("EXEC_PERMIT")));
+        permitRepository.put("test", "select count(1) from project where id = ?");
+//        ValidExecutor validExecutor = getExecutor(repository_query, new Object[0]);
+//        int verify_warehouse_start_init = validExecutor.execute(executor -> logger.info("verify warehouse start init"));
+//        Assert.state(verify_warehouse_start_init != -1, "verify warehouse initialization failed");
+//        validExecutor.getResult().forEach(dataMap -> permitRepository.put((String) dataMap.get("PERMIT"), (String) dataMap.get("EXEC_PERMIT")));
         return this;
     }
 
@@ -52,7 +54,7 @@ public class PermissionVerifyRepository {
     }
 
     public String getValidPermit(String code) {
-        return sqlRepository.getOrDefault(code, "");
+        return permitRepository.getOrDefault(code, "");
     }
 
     public Object getBean(Class clazz) {

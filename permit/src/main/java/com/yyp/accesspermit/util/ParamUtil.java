@@ -1,12 +1,11 @@
 package com.yyp.accesspermit.util;
 
+import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,7 +89,7 @@ public class ParamUtil {
     }
 
     public static String getKeyMD5(String dataKey, Object[] args) {
-        return dataKey + "$$" + DigestUtils.md5Digest(JSONArray.toJSONString(args).getBytes(StandardCharsets.UTF_8));
+        return dataKey + "$$" + SecureUtil.md5(JSONArray.toJSONString(args));
     }
 
     private static Object findKey(String key, Object obj) {

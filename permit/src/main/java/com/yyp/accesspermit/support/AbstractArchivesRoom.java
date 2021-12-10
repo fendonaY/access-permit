@@ -12,10 +12,11 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom {
         verifyReport.setAnnotationInfo(annotationInfo);
         verifyReport.setSuggest(annotationInfo.getMessage());
         verifyReport.setId(getReportId(verifyReport));
+        verifyReport.setCurrent(true);
         return verifyReport;
     }
 
-    protected String getReportId(VerifyReport verifyReport) {
+    public String getReportId(VerifyReport verifyReport) {
         return UUID.randomUUID().toString().replace("-", "");
     }
 }

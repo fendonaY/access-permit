@@ -23,8 +23,13 @@ public class DefaultPermissionContext implements PermissionContext {
     }
 
     @Override
+    public VerifyReport getReport(String permit) {
+        return securityDept.getReport(permit);
+    }
+
+    @Override
     public Object getValidData(String permit) {
-        VerifyReport report = securityDept.getReport(permit);
+        VerifyReport report = getReport(permit);
         return report.getValidData();
     }
 

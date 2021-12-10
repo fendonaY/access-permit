@@ -33,6 +33,7 @@ public class VerifierHelper {
                 verifyReport.setValidResult(annotationInfo.isCanEmpty() ? true : false);
                 verifyReport.setValidResultObject(Collections.EMPTY_LIST);
             }
+            verifyReport.setValidData(collect.toArray());
         }
     }
 }

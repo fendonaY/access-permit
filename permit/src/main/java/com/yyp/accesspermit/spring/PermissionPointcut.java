@@ -5,7 +5,6 @@ import com.yyp.accesspermit.util.AnnotationUtil;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
 import org.springframework.aop.Pointcut;
-import org.springframework.core.annotation.MergedAnnotation;
 
 import java.lang.reflect.Method;
 
@@ -23,8 +22,7 @@ public class PermissionPointcut implements Pointcut, MethodMatcher {
 
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
-        MergedAnnotation[] annotation = AnnotationUtil.getAnnotation(targetClass, method, Permission.class, Permission.List.class);
-        return annotation.length != 0;
+        return AnnotationUtil.existsAnnotation(targetClass, Permission.class) || AnnotationUtil.existsAnnotation(targetClass, Permission.List.class);
     }
 
     @Override

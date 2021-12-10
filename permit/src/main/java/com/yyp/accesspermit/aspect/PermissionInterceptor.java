@@ -28,6 +28,10 @@ public class PermissionInterceptor implements MethodInterceptor {
         final Method method = BridgeMethodResolver.findBridgedMethod(specificMethod);
         MergedAnnotation[] annotation = AnnotationUtil.getAnnotation(targetClass, method, Permission.class, Permission.List.class);
         PermissionInfo permissionInfo = parseAnnotation(annotation);
+        permissionInfo.setTargetClass(targetClass);
+        permissionInfo.setArguments(methodInvocation.getArguments());
+        permissionInfo.setTargetMethod(method);
+        permissionInfo.setTargetObj(methodInvocation.getThis());
         if (permissionInfo.getAnnotationInfoList().isEmpty())
             return methodInvocation.proceed();
 

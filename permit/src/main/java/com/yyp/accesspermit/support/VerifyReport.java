@@ -1,16 +1,25 @@
 package com.yyp.accesspermit.support;
 
-import lombok.Data;
+import com.alibaba.fastjson.annotation.JSONField;
+import com.yyp.accesspermit.serializer.IgnoreSerializer;
+import com.yyp.accesspermit.serializer.ToStringSerializer;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.SneakyThrows;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
 
-@Data
-public class VerifyReport implements Serializable {
+@Getter
+@Setter
+public class VerifyReport implements Serializable, Cloneable {
 
     public VerifyReport(String permit) {
         this.permit = permit;
+    }
+
+    public VerifyReport() {
     }
 
     public VerifyReport(Object targetObj, Class targetClass, Method targetMethod) {
@@ -19,12 +28,21 @@ public class VerifyReport implements Serializable {
         this.targetMethod = targetMethod;
     }
 
+    @SneakyThrows
+    @Override
+    protected VerifyReport clone() {
+        return (VerifyReport) super.clone();
+    }
+
     private PermissionInfo.AnnotationInfo annotationInfo;
 
+    @JSONField(serializeUsing = ToStringSerializer.class, deserializeUsing = IgnoreSerializer.class)
     private Object targetObj;
 
+    @JSONField(serializeUsing = ToStringSerializer.class, deserializeUsing = IgnoreSerializer.class)
     private Class targetClass;
 
+    @JSONField(serializeUsing = ToStringSerializer.class, deserializeUsing = IgnoreSerializer.class)
     private Method targetMethod;
 
     /**
@@ -66,5 +84,10 @@ public class VerifyReport implements Serializable {
      * 归档
      */
     private boolean archive;
+
+    /**
+     * 当前
+     */
+    private boolean current;
 
 }

@@ -35,7 +35,7 @@ public class PermissionInfo {
     }
 
     @Data
-    public class AnnotationInfo {
+    public static class AnnotationInfo {
         private String message;
 
         private int[] indexes;
@@ -55,6 +55,9 @@ public class PermissionInfo {
         private int maxCacheTime;
 
         private TimeUnit timeUnit;
+
+        public AnnotationInfo() {
+        }
 
         public AnnotationInfo(MergedAnnotation parsePermission) {
             this.message = parsePermission.getString("message");

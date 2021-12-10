@@ -1,12 +1,11 @@
 package com.yyp.accesspermit.spring;
 
 import com.yyp.accesspermit.aspect.PermissionInterceptor;
-import com.yyp.accesspermit.support.ArchivesRoom;
-import com.yyp.accesspermit.support.CacheArchivesRoom;
-import com.yyp.accesspermit.support.SecurityDept;
-import com.yyp.accesspermit.support.VerifyRecordDept;
+import com.yyp.accesspermit.support.*;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RedissonClient;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -14,20 +13,37 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 
+import java.util.Arrays;
+
 @Configuration
 @Slf4j
 public class PermissionConfiguration {
 
     @Bean
-    @ConditionalOnMissingBean(value = ArchivesRoom.class)
-    public ArchivesRoom getArchivesRoom() {
-        return new CacheArchivesRoom();
+    @ConditionalOnMissingBean
+    public ArchivesRoom getArchivesRoom(@Autowired RedissonClient redissonClient) {
+        return new CacheArchivesRoom(redissonClient);
     }
 
     @Bean
-    @ConditionalOnMissingBean(value = SecurityDept.class)
-    public SecurityDept getSecurityDept(@Autowired ArchivesRoom archivesRoom) {
-        return new VerifyRecordDept(archivesRoom);
+    public Verifier getVerifier(@Autowired VerifyTemplate verifyTemplate) {
+        return new CacheVerifier(verifyTemplate);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public SecurityDept getSecurityDept(ObjectProvider<Verifier[]> verifiers, @Autowired ArchivesRoom archivesRoom) {
+        VerifyRecordDept verifyRecordDept = new VerifyRecordDept(archivesRoom);
+        Verifier[] verifierList = verifiers.getIfAvailable();
+        if (verifierList != null) {
+            Arrays.stream(verifierList).forEach(v -> verifyRecordDept.addVerifier(v));
+        }
+        return verifyRecordDept;
+    }
+
+    @Bean
+    public VerifyTemplate getVerifyTemplate() {
+        return new VerifyTemplate();
     }
 
     @Bean

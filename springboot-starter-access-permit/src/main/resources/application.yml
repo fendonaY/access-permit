@@ -1,0 +1,20 @@
+#server:
+#  port: 9023
+#logging:
+#  level:
+#    root: info
+#    com.springms: info
+#  file:
+#    max-history: 1000
+#    max-size: 50MB
+#    name: /home/username/msj/msj-web-account-server/msj-web-account-server.log
+#  pattern:
+#    console: '%d{yyyy-MM-dd HH:mm:SSS} [%t] - [%p] [%c:%L] [%M] %m%n)'
+#    file: '%d{yyyy-MM-dd HH:mm:SSS} [%t] - [%p] [%c:%L] [%M] %m%n)'
+#
+#
+#spring:
+#  redis:
+#    host: 127.0.0.1
+#    port: 6379
+#    password: aixiao6379

@@ -50,20 +50,12 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
 
     @Override
     public PermitToken securityVerify(PermissionContext permissionContext) {
-        List<String> permits = permissionContext.getPermits();
-        List<VerifyReport> reports = new ArrayList<>(permits.size());
-        for (String permit : permits) {
-            List<Verifier> verifiers = getVerifier(permit);
-            verifiers.forEach(verifier -> {
-                verifier.prepareVerify(permissionContext);
-                verifier.verify(this.archivesRoom, permissionContext.getPermissionInfo());
-                verifier.finishVerify(permissionContext);
-                reports.add(this.archivesRoom.getVerifyReport(permit));
-            });
-        }
+        prepareVerify(permissionContext);
+        doVerify(permissionContext);
+        List<VerifyReport> reports = finishVerify(permissionContext);
+
         String errorMsg = reports.stream().filter(report -> !report.getValidResult()).map(report -> report.getSuggest()).collect(Collectors.joining(","));
         long count = reports.stream().filter(report -> !report.getValidResult()).filter(report -> RejectStrategy.VIOLENCE.equals(report.getAnnotationInfo().getStrategy())).count();
-
         PermitToken permitToken;
         if (StringUtils.hasText(errorMsg)) {
             permitToken = PermitToken.reject(errorMsg);
@@ -71,6 +63,40 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
             permitToken = PermitToken.pass();
         permitToken.setRejectStrategy(count > 0 ? RejectStrategy.VIOLENCE : RejectStrategy.GENTLE);
         return permitToken;
+    }
+
+    protected void prepareVerify(PermissionContext permissionContext) {
+        for (String permit : permissionContext.getPermits()) {
+            List<Verifier> verifiers = getVerifier(permit);
+            verifiers.forEach(verifier -> verifier.prepareVerify(permissionContext));
+        }
+    }
+
+    protected void doVerify(PermissionContext permissionContext) {
+        for (String permit : permissionContext.getPermits()) {
+            refreshId(permit);
+            List<Verifier> verifiers = getVerifier(permit);
+            verifiers.forEach(verifier -> verifier.verify(this.archivesRoom, permissionContext.getPermissionInfo()));
+        }
+    }
+
+    protected List<VerifyReport> finishVerify(PermissionContext permissionContext) {
+        List<VerifyReport> reports = new ArrayList<>(permissionContext.getPermits().size());
+        for (String permit : permissionContext.getPermits()) {
+            List<Verifier> verifiers = getVerifier(permit);
+            verifiers.forEach(verifier -> verifier.finishVerify(permissionContext));
+            reports.add(this.archivesRoom.getVerifyReport(permit));
+        }
+        return reports;
+    }
+
+    private void refreshId(String permit) {
+        VerifyReport verifyReport = this.archivesRoom.getVerifyReport(permit);
+        if (!verifyReport.isArchive()) {
+            VerifyReport newReport = verifyReport.clone();
+            verifyReport.setId(this.archivesRoom.getReportId(newReport));
+            this.archivesRoom.update(verifyReport, newReport);
+        }
     }
 
     public void addVerifier(Verifier verifier) {

@@ -11,8 +11,16 @@ public class CacheVerifier implements Verifier {
     }
 
     @Override
-    public PermissionInfo prepareVerify(PermissionContext permissionContext) {
-        return permissionContext.getPermissionInfo();
+    public void prepareVerify(PermissionContext permissionContext) {
+        PermissionInfo permissionInfo = permissionContext.getPermissionInfo();
+        List<PermissionInfo.AnnotationInfo> annotationInfoList = permissionInfo.getAnnotationInfoList();
+        int size = annotationInfoList.size();
+        for (int i = 0; i < size; i++) {
+            PermissionInfo.AnnotationInfo annotationInfo = annotationInfoList.get(i);
+            VerifyReport verifyReport = permissionContext.getReport(annotationInfo.getPermit());
+            if (verifyReport.getValidResult() == null)
+                VerifierHelper.findValidData(verifyReport, permissionInfo, annotationInfo);
+        }
     }
 
     @Override
@@ -23,12 +31,8 @@ public class CacheVerifier implements Verifier {
         for (int i = 0; i < size; i++) {
             PermissionInfo.AnnotationInfo annotationInfo = annotationInfoList.get(i);
             VerifyReport verifyReport = archivesRoom.getVerifyReport(annotationInfo.getPermit());
-            VerifierHelper.findValidData(verifyReport, permissionInfo, annotationInfo);
-            if (verifyReport.getValidResult() == null) {
-                VerifierHelper.findValidData(verifyReport, permissionInfo, annotationInfo);
-                if (verifyReport.getValidResult() == null)
-                    verifyTemplate.validParams(verifyReport);
-            }
+            if (verifyReport.getValidResult() == null)
+                verifyTemplate.validParams(verifyReport);
             pass = pass && verifyReport.getValidResult();
         }
         return pass;

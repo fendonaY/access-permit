@@ -5,7 +5,7 @@ public interface Verifier {
     /**
      * 准备验证
      */
-    PermissionInfo prepareVerify(PermissionContext permissionContext);
+    void prepareVerify(PermissionContext permissionContext);
 
     /**
      * 验证

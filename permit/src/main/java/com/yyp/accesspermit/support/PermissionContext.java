@@ -8,6 +8,8 @@ public interface PermissionContext {
 
     List<String> getPermits();
 
+    VerifyReport getReport(String permit);
+
     Object getValidData(String permit);
 
     boolean getValidResult(String permit);

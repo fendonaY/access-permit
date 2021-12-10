@@ -29,7 +29,7 @@ public class PermitToken {
     }
 
     public static PermitToken reject(String explain) {
-        return new PermitToken(true, PermissionPhase.VERIFIED, explain);
+        return new PermitToken(false, PermissionPhase.VERIFIED, explain);
     }
 
     public static PermitToken reject() {

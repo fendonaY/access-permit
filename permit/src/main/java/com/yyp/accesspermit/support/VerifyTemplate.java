@@ -2,10 +2,9 @@ package com.yyp.accesspermit.support;
 
 import com.alibaba.fastjson.JSONObject;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,15 +14,17 @@ import java.util.stream.Collectors;
  * @description:
  * @date 2021/4/713:48
  */
-public class VerifyTemplate implements BeanFactoryAware, InitializingBean {
+public class VerifyTemplate implements ApplicationContextAware, InitializingBean {
 
     private VerifyExecutorHandle defaultHandle;
 
     private PermissionVerifyRepository verifyRepository;
 
+    private ApplicationContext applicationContext;
+
     public boolean validParams(VerifyReport verifyReport) {
         PermissionInfo.AnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
-        ValidExecutor executor = verifyRepository.getExecutor(verifyReport.getValidData(), verifyReport.getPermit());
+        ValidExecutor executor = getVerifyRepository().getExecutor(verifyReport.getValidData(), verifyReport.getPermit());
         int execute = executor.execute(defaultHandle);
         List<Map<String, Object>> result = executor.getResult();
         verifyReport.setValidResultObject(getValidResultObject(executor));
@@ -33,11 +34,6 @@ public class VerifyTemplate implements BeanFactoryAware, InitializingBean {
 
     private List getValidResultObject(ValidExecutor executor) {
         return executor.getResult().stream().map(r -> JSONObject.toJSON(r)).collect(Collectors.toList());
-    }
-
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        this.verifyRepository = PermissionVerifyRepository.getRepository((ApplicationContext) beanFactory);
     }
 
     @Override
@@ -73,5 +69,14 @@ public class VerifyTemplate implements BeanFactoryAware, InitializingBean {
                     }
                 }
             };
+    }
+
+    public PermissionVerifyRepository getVerifyRepository() {
+        return PermissionVerifyRepository.getRepository(applicationContext);
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
     }
 }

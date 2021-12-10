@@ -27,7 +27,12 @@ public interface ArchivesRoom {
     /**
      * 更新档案
      */
-    void update(VerifyReport verifyReport);
+    void update(VerifyReport oldReport,VerifyReport newReport);
+
+    /**
+     * 获取档案id
+     */
+    String getReportId(VerifyReport verifyReport);
 
 }
 
