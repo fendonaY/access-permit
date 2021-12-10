@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <modules>
         <module>permit</module>
-        <module>springboot-starter-access-permit</module>
+        <module>springboot-starter-permit</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -12,7 +12,7 @@
         <version>2.2.6.RELEASE</version>
         <relativePath/>
     </parent>
-    <groupId>com.yyp.access-permit</groupId>
+    <groupId>com.yyp.permit</groupId>
     <artifactId>access-permit</artifactId>
     <version>1.0.1</version>
     <name>${project.artifactId}</name>

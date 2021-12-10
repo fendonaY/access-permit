@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.yyp.permit.spring.PermissionConfiguration,\
+  com.yyp.permit.spring.PermissionProxyAutoConfiguration
