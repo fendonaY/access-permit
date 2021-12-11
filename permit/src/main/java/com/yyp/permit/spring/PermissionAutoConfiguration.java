@@ -1,40 +1,35 @@
 package com.yyp.permit.spring;
 
 import com.yyp.permit.support.ArchivesRoom;
-import com.yyp.permit.support.CacheArchivesRoom;
 import com.yyp.permit.support.SecurityDept;
 import com.yyp.permit.support.VerifyRecordDept;
-import com.yyp.permit.support.verify.*;
-import org.redisson.api.RedissonClient;
+import com.yyp.permit.support.verify.repository.DBVerifyRepository;
+import com.yyp.permit.support.verify.repository.VerifyRepository;
+import com.yyp.permit.support.verify.VerifyTemplate;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Role;
 
 import javax.sql.DataSource;
 
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnSingleCandidate(DataSource.class)
-@AutoConfigureAfter({DataSourceAutoConfiguration.class})
-public class PermissionConfiguration {
+@AutoConfigureAfter({PropertiesAutoConfiguration.class})
+public class PermissionAutoConfiguration {
 
-    @Bean
+    @Bean("mainSecurityDept")
     @ConditionalOnMissingBean
-    public ArchivesRoom getArchivesRoom(@Autowired RedissonClient redissonClient) {
-        return new CacheArchivesRoom(redissonClient);
-    }
-
-    @Bean
     public SecurityDept getSecurityDept(@Autowired ArchivesRoom archivesRoom) {
         VerifyRecordDept verifyRecordDept = new VerifyRecordDept(archivesRoom);
         return verifyRecordDept;
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public VerifyRepository getDBVerifyRepository(ObjectProvider<DataSource[]> dataSources) {
         return new DBVerifyRepository(dataSources);
     }
@@ -45,7 +40,8 @@ public class PermissionConfiguration {
     }
 
     @Bean
-    public Verifier getVerifier(@Autowired VerifyTemplate verifyTemplate) {
-        return new CacheVerifier(verifyTemplate);
+    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+    public VerifierScanner registerVerifierScanner() {
+        return new VerifierScanner();
     }
 }

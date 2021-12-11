@@ -1,5 +1,6 @@
 package com.yyp.permit.support;
 
+import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
 import com.yyp.permit.util.ParamUtil;
 
 import java.util.ArrayList;
@@ -10,7 +11,7 @@ import java.util.stream.Collectors;
 
 public class VerifierHelper {
 
-    public static void findValidData(VerifyReport verifyReport, PermissionInfo permissionInfo, PermissionInfo.AnnotationInfo annotationInfo) {
+    public static void findValidData(VerifyReport verifyReport, PermissionInfo permissionInfo, PermissionAnnotationInfo annotationInfo) {
         List<Object> params = new ArrayList<>();
         if (verifyReport.getValidResult() == null) {
             int length = annotationInfo.getNames().length + annotationInfo.getIndexes().length;

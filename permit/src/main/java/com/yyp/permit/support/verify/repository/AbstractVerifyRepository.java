@@ -1,4 +1,8 @@
-package com.yyp.permit.support.verify;
+package com.yyp.permit.support.verify.repository;
+
+import com.yyp.permit.support.PermissionVerifyExecutor;
+import com.yyp.permit.support.VerifyReport;
+import com.yyp.permit.support.verify.ValidExecutor;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -39,6 +43,24 @@ public abstract class AbstractVerifyRepository implements VerifyRepository {
         if (getPermitRepository() == null)
             this.permitRepository = new HashMap<>(16);
         return this;
+    }
+
+    @Override
+    public ValidExecutor getExecutor(VerifyReport verifyReport) {
+        return getExecutor(verifyReport.getValidData(), verifyReport.getPermit());
+    }
+
+    protected ValidExecutor getExecutor(String sql, Object[] params) {
+        return getDefaultExecutor(getDataSource(), sql, params);
+    }
+
+    protected ValidExecutor getExecutor(Object[] params, String validCode) {
+        return getDefaultExecutor(getDataSource(), getPermission(validCode), params);
+    }
+
+    private ValidExecutor getDefaultExecutor(DataSource dataSource, String sql, Object[] params) {
+        Objects.requireNonNull(dataSource, "dataSource is null");
+        return new PermissionVerifyExecutor(dataSource, sql, params);
     }
 
     @Override

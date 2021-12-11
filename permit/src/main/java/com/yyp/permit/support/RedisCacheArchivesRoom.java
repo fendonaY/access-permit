@@ -1,29 +1,32 @@
 package com.yyp.permit.support;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
 import com.yyp.permit.util.ParamUtil;
 import org.redisson.api.RMap;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CacheArchivesRoom extends AbstractArchivesRoom implements RecycleBin {
+public class RedisCacheArchivesRoom extends AbstractArchivesRoom implements RecycleBin {
 
     private NamedThreadLocal<Map<String, VerifyReport>> recordStore = new NamedThreadLocal<>("archives");
 
     private NamedThreadLocal<Map<String, Set<String>>> permitReportIdMap = new NamedThreadLocal<>("permit report id map");
 
-    private final String cachePrefix = "archives_$1_$2";
+    private final String cachePrefix = "ARCHIVES_ROOM@$1_$2";
 
+    @Autowired
     private RedissonClient redissonClient;
 
-    public CacheArchivesRoom() {
+    public RedisCacheArchivesRoom() {
     }
 
-    public CacheArchivesRoom(RedissonClient redissonClient) {
+    public RedisCacheArchivesRoom(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 
@@ -50,29 +53,10 @@ public class CacheArchivesRoom extends AbstractArchivesRoom implements RecycleBi
     }
 
     @Override
-    public VerifyReport getVerifyReport(String permit) {
-        Set<String> ids = getPermitReportIdMap(permit);
-        Map<String, VerifyReport> recordStore = getRecordStore();
-        List<VerifyReport> current = ids.stream().map(id -> recordStore.get(id)).filter(report -> report.isCurrent()).collect(Collectors.toList());
-        Assert.state(!current.isEmpty(), permit + " archives doesn't exist");
-        Assert.isTrue(current.size() == 1, permit + " has multiple current archives");
-        return current.get(0);
-    }
-
-    @Override
-    public void remove(String permit) {
-        Set<String> ids = getPermitReportIdMap().remove(permit);
-        if (ids != null) {
-            Map<String, VerifyReport> recordStore = getRecordStore();
-            ids.forEach(id -> recordStore.remove(id));
-        }
-    }
-
-    @Override
     public void archive(String permit) {
         VerifyReport verifyReport = getVerifyReport(permit);
         Assert.notNull(verifyReport.getAnnotationInfo(), "unknown report");
-        PermissionInfo.AnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
+        PermissionAnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
         if (verifyReport.isArchive())
             return;
         if (annotationInfo.isValidCache()) {
@@ -81,16 +65,6 @@ public class CacheArchivesRoom extends AbstractArchivesRoom implements RecycleBi
             RMap<Object, Object> map = redissonClient.getMap(getCacheKey(verifyReport));
             map.putIfAbsent(verifyReport.getId(), JSONObject.toJSONString(verifyReport));
         }
-    }
-
-    @Override
-    public void update(VerifyReport oldReport, VerifyReport newReport) {
-        Map<String, VerifyReport> recordStore = getRecordStore();
-        Set<String> permitReportIdMap = getPermitReportIdMap(oldReport.getPermit());
-        permitReportIdMap.remove(oldReport.getId());
-        permitReportIdMap.add(newReport.getId());
-        recordStore.remove(oldReport.getId());
-        recordStore.putIfAbsent(newReport.getId(), newReport);
     }
 
     public Map<String, VerifyReport> getRecordStore() {
@@ -110,19 +84,6 @@ public class CacheArchivesRoom extends AbstractArchivesRoom implements RecycleBi
         return getPermitReportIdMap().get(permit);
     }
 
-    public void setRecordStore(String permit, VerifyReport verifyReport) {
-        getPermitReportIdMap(permit).add(verifyReport.getId());
-        getRecordStore().compute(verifyReport.getId(), (key, oldValue) -> {
-            if (oldValue != null) {
-                oldValue.setTargetClass(verifyReport.getTargetClass());
-                oldValue.setTargetMethod(verifyReport.getTargetMethod());
-                oldValue.setTargetObj(verifyReport.getTargetObj());
-                oldValue.setCurrent(true);
-                return oldValue;
-            }
-            return verifyReport;
-        });
-    }
 
     private String getCacheKey(VerifyReport verifyReport) {
         String name = verifyReport.getTargetClass().getName();

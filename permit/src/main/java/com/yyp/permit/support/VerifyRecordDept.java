@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 
 public class VerifyRecordDept implements SecurityDept, InitializingBean {
 
-    private List<Verifier> verifierDept = new ArrayList();
+    private final List<Verifier> verifierDept = new ArrayList();
 
-    private Map<String, List<Verifier>> specialVerifier = new HashMap<>();
+    private final Map<String, List<Verifier>> specialVerifier = new HashMap<>();
 
     private ArchivesRoom archivesRoom;
 
@@ -69,7 +69,7 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
     protected void prepareVerify(PermissionContext permissionContext) {
         for (String permit : permissionContext.getPermits()) {
             List<Verifier> verifiers = getVerifier(permit);
-            verifiers.forEach(verifier -> verifier.prepareVerify(permissionContext));
+            verifiers.forEach(verifier -> verifier.prepareVerify(permissionContext, permit));
         }
     }
 
@@ -77,7 +77,7 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
         for (String permit : permissionContext.getPermits()) {
             refreshId(permit);
             List<Verifier> verifiers = getVerifier(permit);
-            verifiers.forEach(verifier -> verifier.verify(this.archivesRoom, permissionContext.getPermissionInfo()));
+            verifiers.forEach(verifier -> verifier.verify(this.archivesRoom, permissionContext.getPermissionInfo(), permit));
         }
     }
 
@@ -85,7 +85,7 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
         List<VerifyReport> reports = new ArrayList<>(permissionContext.getPermits().size());
         for (String permit : permissionContext.getPermits()) {
             List<Verifier> verifiers = getVerifier(permit);
-            verifiers.forEach(verifier -> verifier.finishVerify(permissionContext));
+            verifiers.forEach(verifier -> verifier.finishVerify(permissionContext, permit));
             reports.add(this.archivesRoom.getVerifyReport(permit));
         }
         return reports;

@@ -4,6 +4,8 @@ import java.util.List;
 
 public interface PermissionContext {
 
+    SecurityDept getSecurityDept();
+
     PermissionInfo getPermissionInfo();
 
     List<String> getPermits();

@@ -1,21 +1,25 @@
 package com.yyp.permit.aspect;
 
-import com.yyp.permit.annotation.Permission;
+import com.yyp.permit.annotation.parser.AnnotationInfoProvider;
+import com.yyp.permit.annotation.parser.AnnotationParser;
+import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
+import com.yyp.permit.annotation.parser.PermissionAnnotationParser;
 import com.yyp.permit.support.*;
-import com.yyp.permit.util.AnnotationUtil;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.BridgeMethodResolver;
-import org.springframework.core.annotation.MergedAnnotation;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 public class PermissionInterceptor implements MethodInterceptor {
 
     private SecurityDept securityDept;
+
+    private AnnotationParser annotationParser = new PermissionAnnotationParser();
 
     public PermissionInterceptor(SecurityDept securityDept) {
         this.securityDept = securityDept;
@@ -33,15 +37,16 @@ public class PermissionInterceptor implements MethodInterceptor {
         Class<?> targetClass = (methodInvocation.getThis() != null ? AopUtils.getTargetClass(methodInvocation.getThis()) : null);
         Method specificMethod = ClassUtils.getMostSpecificMethod(methodInvocation.getMethod(), targetClass);
         final Method method = BridgeMethodResolver.findBridgedMethod(specificMethod);
-        MergedAnnotation[] annotation = AnnotationUtil.getAnnotation(targetClass, method, Permission.class, Permission.List.class);
-        PermissionInfo permissionInfo = parseAnnotation(annotation);
+        if (!annotationParser.isCandidateClass(targetClass))
+            return methodInvocation.proceed();
+
+        PermissionInfo permissionInfo = new PermissionInfo();
+        AnnotationInfoProvider<List<PermissionAnnotationInfo>> annotationInfo = annotationParser.getAnnotationInfo(method, targetClass);
         permissionInfo.setTargetClass(targetClass);
         permissionInfo.setArguments(methodInvocation.getArguments());
         permissionInfo.setTargetMethod(method);
         permissionInfo.setTargetObj(methodInvocation.getThis());
-        if (permissionInfo.getAnnotationInfoList().isEmpty())
-            return methodInvocation.proceed();
-
+        permissionInfo.setAnnotationInfoList(annotationInfo.getAnnotationInfo());
         PermissionContext permissionContext = securityDept.register(permissionInfo);
         PermitToken permitToken = securityDept.securityVerify(permissionContext);
         PermissionManager.issuedPassCheck(permitToken);
@@ -56,16 +61,6 @@ public class PermissionInterceptor implements MethodInterceptor {
             if (PermissionManager.getPermitToken() == null)
                 PermissionManager.clearRecycleBin();
         }
-    }
-
-    private PermissionInfo parseAnnotation(MergedAnnotation[] annotations) {
-        PermissionInfo permissionInfo = new PermissionInfo();
-        for (MergedAnnotation annotation : annotations) {
-            if (annotation == MergedAnnotation.missing())
-                continue;
-            permissionInfo.getAnnotationInfo(annotation);
-        }
-        return permissionInfo;
     }
 
     private Object returnFail(Method method) {

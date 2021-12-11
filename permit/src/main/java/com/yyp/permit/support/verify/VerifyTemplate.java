@@ -1,9 +1,11 @@
 package com.yyp.permit.support.verify;
 
 import com.alibaba.fastjson.JSONObject;
-import com.yyp.permit.support.PermissionInfo;
+import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
 import com.yyp.permit.support.PermissionVerifyExecutor;
 import com.yyp.permit.support.VerifyReport;
+import com.yyp.permit.support.verify.repository.DBVerifyRepository;
+import com.yyp.permit.support.verify.repository.VerifyRepository;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.*;
@@ -42,7 +44,7 @@ public final class VerifyTemplate implements InitializingBean {
 
 
     public boolean validParams(VerifyReport verifyReport) {
-        PermissionInfo.AnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
+        PermissionAnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
         ValidExecutor executor = getVerifyRepository().getExecutor(verifyReport);
         int execute = executor.execute(defaultHandle);
         List<Map<String, Object>> result = executor.getResult();
