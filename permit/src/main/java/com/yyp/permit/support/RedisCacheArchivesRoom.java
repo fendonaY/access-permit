@@ -57,7 +57,6 @@ public class RedisCacheArchivesRoom extends AbstractArchivesRoom implements Recy
         if (annotationInfo.isValidCache()) {
             verifyReport.setArchive(true);
             verifyReport.setCurrent(false);
-            System.out.println("开始归档");
             RMap<Object, Object> map = redissonClient.getMap(getCacheKey(verifyReport));
             map.putIfAbsent(verifyReport.getId(), JSONObject.toJSONString(verifyReport));
         }

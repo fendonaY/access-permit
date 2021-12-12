@@ -21,8 +21,8 @@ import javax.sql.DataSource;
 import java.util.Optional;
 
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnSingleCandidate(DataSource.class)
-@AutoConfigureAfter({DataSourceAutoConfiguration.class})
+//@ConditionalOnSingleCandidate(DataSource.class)
+//@AutoConfigureAfter({DataSourceAutoConfiguration.class})
 @EnableConfigurationProperties({PermissionProperties.class})
 public class PropertiesAutoConfiguration {
 

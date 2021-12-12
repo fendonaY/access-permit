@@ -17,10 +17,7 @@ public class TestApi {
 
     @PostMapping("/test")
     @Permission(permit = "test", indexes = 0, canEmpty = true)
-    @ApiIdempotence(reject = RejectStrategy.GENTLE)
     public String list(String query) throws InterruptedException {
-        Thread.sleep(500);
-        test2Api.list(query + "test");
         return "test-" + query;
     }
 }
