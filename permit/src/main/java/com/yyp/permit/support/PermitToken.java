@@ -7,7 +7,7 @@ import lombok.Data;
 public class PermitToken {
 
     public enum PermissionPhase {
-        ACCESS, REGISTER, VERIFIED
+        REGISTER, VERIFIED
     }
 
     private PermitToken oldPermitToken;

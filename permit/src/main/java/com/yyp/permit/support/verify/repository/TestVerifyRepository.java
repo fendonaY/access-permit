@@ -7,7 +7,7 @@ public class TestVerifyRepository extends AbstractVerifyRepository {
 
     public TestVerifyRepository initRepository() {
         super.initRepository();
-        addPermitRepository("test", "SELECT COUNT(1) FROM TEST WHERE ID= ?");
+//        addPermitRepository("test", "SELECT COUNT(1) FROM TEST WHERE ID= ?");
         return this;
     }
 }

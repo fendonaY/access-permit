@@ -3,7 +3,10 @@ package com.yyp.permit.annotation;
 
 import com.yyp.permit.aspect.RejectStrategy;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Repeatable;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -18,7 +21,7 @@ public @interface Permission {
     /**
      * 提示消息
      */
-    String message() default "permission invalid";
+    String message() default "access reject";
 
     /**
      * 需要校验的id的下标
@@ -36,7 +39,7 @@ public @interface Permission {
 
     /**
      * 校验结果是否可以为空
-     * true:如果依赖{@link PermissionContext#getValidResultObject()} 校验直接通过
+     * true:如果依赖{@link com.yyp.permit.support.PermissionContext#getValidResultObject(String)}校验直接通过
      * false:通过校验器返回的数据如果为空，则不通过，如果不为空，则通过
      */
     boolean canEmpty() default false;

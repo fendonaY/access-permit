@@ -6,11 +6,16 @@ import com.yyp.permit.annotation.parser.SupportVerifyAnnotationParser;
 import com.yyp.permit.support.SecurityDept;
 import com.yyp.permit.support.VerifyRecordDept;
 import com.yyp.permit.support.verify.DefaultVerifier;
+import com.yyp.permit.support.verify.FunctionalVerify;
 import com.yyp.permit.support.verify.Verifier;
 import com.yyp.permit.support.verify.VerifyTemplate;
+import com.yyp.permit.support.verify.repository.AbstractVerifyRepository;
+import com.yyp.permit.support.verify.repository.TestVerifyRepository;
+import com.yyp.permit.support.verify.repository.VerifyRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.boot.ApplicationArguments;
@@ -49,6 +54,10 @@ public class VerifierScanner implements BeanFactoryPostProcessor, ApplicationCon
                 }
             });
         }
+        VerifyRepository testVerifyRepository = applicationContext.getBean(VerifyRepository.class);
+        ((AbstractVerifyRepository) testVerifyRepository).addPermitRepository("test", (FunctionalVerify) report -> {
+            return -1;
+        });
     }
 
     @Override

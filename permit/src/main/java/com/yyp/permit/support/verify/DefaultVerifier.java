@@ -32,6 +32,7 @@ public class DefaultVerifier implements Verifier {
 
     @Override
     public void finishVerify(PermissionContext permissionContext, String permit) {
-        permissionContext.getPermissionInfo().setPhase(PermitToken.PermissionPhase.VERIFIED);
+        VerifyReport report = permissionContext.getReport(permit);
+        report.setPhase(PermitToken.PermissionPhase.VERIFIED);
     }
 }

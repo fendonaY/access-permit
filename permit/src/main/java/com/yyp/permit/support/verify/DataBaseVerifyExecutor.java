@@ -1,13 +1,13 @@
-package com.yyp.permit.support;
+package com.yyp.permit.support.verify;
 
-import com.yyp.permit.support.verify.ValidExecutor;
-import com.yyp.permit.support.verify.VerifyExecutorHandle;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.sql.DataSource;
-import java.sql.*;
-import java.text.SimpleDateFormat;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.*;
 
 /**
@@ -15,7 +15,7 @@ import java.util.*;
  * @description:
  * @date 2021/4/713:48
  */
-public class PermissionVerifyExecutor implements ValidExecutor {
+public class DataBaseVerifyExecutor implements ValidExecutor {
     protected final Log logger = LogFactory.getLog(getClass());
 
     private DataSource dataSource;
@@ -26,7 +26,7 @@ public class PermissionVerifyExecutor implements ValidExecutor {
 
     private List<Map<String, Object>> result = new ArrayList();
 
-    public PermissionVerifyExecutor(DataSource dataSource, String sql, Object[] params) {
+    public DataBaseVerifyExecutor(DataSource dataSource, String sql, Object[] params) {
         this.dataSource = dataSource;
         this.sql = sql;
         this.params = params;
@@ -48,18 +48,15 @@ public class PermissionVerifyExecutor implements ValidExecutor {
                 int columnCount = rsMeta.getColumnCount();
                 HashMap data = new HashMap(columnCount);
                 for (int i = 1; i <= columnCount; i++) {
-                    Object object = resultSet.getObject(i);
-                    if (object instanceof Timestamp)
-                        object = new SimpleDateFormat("yyyy-MM-dd").format(object);
-                    data.put(rsMeta.getColumnLabel(i), object);
+                    data.put(rsMeta.getColumnLabel(i), resultSet.getObject(i));
                 }
-                result.add(data);
                 if (sql.toUpperCase(Locale.ROOT).startsWith("SELECT COUNT"))
                     return resultSet.getInt(1);
+                result.add(data);
             }
         } catch (Exception e) {
             logger.error("error Permit" + sql + " " + e.getMessage());
-            return -1;
+            return 0;
         } finally {
             if (connection != null) {
                 try {

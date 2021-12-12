@@ -3,6 +3,7 @@ package com.yyp.permit.support.verify.repository;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.util.Assert;
 
 import javax.sql.DataSource;
 import java.util.Map;
@@ -40,6 +41,7 @@ public class RedisVerifyRepository extends AbstractVerifyRepository {
     }
 
     public String getCacheKey() {
+        Assert.hasLength(this.cacheKey, "cacheKey is null");
         return cacheKey;
     }
 
@@ -49,8 +51,8 @@ public class RedisVerifyRepository extends AbstractVerifyRepository {
 
     public RedisVerifyRepository initRepository() {
         super.initRepository();
-        if (localCache) {
-            Map entries = redisTemplate.opsForHash().entries(cacheKey);
+        if (isLocalCache()) {
+            Map entries = redisTemplate.opsForHash().entries(getCacheKey());
             if (entries != null)
                 entries.forEach((permit, permission) -> addPermitRepository(String.valueOf(permit), String.valueOf(permission)));
         }
@@ -58,13 +60,13 @@ public class RedisVerifyRepository extends AbstractVerifyRepository {
     }
 
     @Override
-    public String getPermission(String permit) {
-        if (!localCache) {
-            Object o = redisTemplate.opsForHash().get(cacheKey, permit);
+    public Object getPermission(String permit) {
+        if (!isLocalCache()) {
+            Object o = redisTemplate.opsForHash().get(getCacheKey(), permit);
             if (o != null) {
                 return String.valueOf(o);
             }
-            return null;
+            return "";
         }
         return super.getPermission(permit);
     }

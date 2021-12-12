@@ -87,6 +87,8 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
             List<Verifier> verifiers = getVerifier(permit);
             verifiers.forEach(verifier -> verifier.finishVerify(permissionContext, permit));
             reports.add(this.archivesRoom.getVerifyReport(permit));
+            if (!(this.archivesRoom instanceof RecycleBin))
+                this.archivesRoom.archive(permit);
         }
         return reports;
     }
@@ -94,9 +96,12 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
     private void refreshId(String permit) {
         VerifyReport verifyReport = this.archivesRoom.getVerifyReport(permit);
         if (!verifyReport.isArchive()) {
-            VerifyReport newReport = verifyReport.clone();
-            verifyReport.setId(this.archivesRoom.getReportId(newReport));
-            this.archivesRoom.update(verifyReport, newReport);
+            String reportId = this.archivesRoom.getReportId(verifyReport);
+            if (!reportId.equals(verifyReport.getId())) {
+                VerifyReport newReport = verifyReport.clone();
+                newReport.setId(reportId);
+                this.archivesRoom.update(verifyReport, newReport);
+            }
         }
     }
 

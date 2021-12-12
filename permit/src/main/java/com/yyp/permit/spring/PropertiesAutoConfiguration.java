@@ -9,7 +9,10 @@ import com.yyp.permit.support.verify.repository.RedisVerifyRepository;
 import com.yyp.permit.support.verify.repository.TestVerifyRepository;
 import com.yyp.permit.support.verify.repository.VerifyRepository;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +21,8 @@ import javax.sql.DataSource;
 import java.util.Optional;
 
 @Configuration(proxyBeanMethods = false)
-//@ConditionalOnSingleCandidate(DataSource.class)
-//@AutoConfigureAfter({DataSourceAutoConfiguration.class})
+@ConditionalOnSingleCandidate(DataSource.class)
+@AutoConfigureAfter({DataSourceAutoConfiguration.class})
 @EnableConfigurationProperties({PermissionProperties.class})
 public class PropertiesAutoConfiguration {
 
@@ -54,8 +57,8 @@ public class PropertiesAutoConfiguration {
     public ArchivesRoom getArchivesRoom() {
         String room = permissionProperties.getArchivesRoom() == null ? "" : permissionProperties.getArchivesRoom().getRoom();
         if ("log".equals(room)) {
-            return new LogArchivesRoom();
-        } else if ("localCache".equals(room)) {
+            return new LogArchivesRoom(new LocalCacheArchivesRoom());
+        } else if ("local".equals(room)) {
             return new LocalCacheArchivesRoom();
         } else {
             return new RedisCacheArchivesRoom();

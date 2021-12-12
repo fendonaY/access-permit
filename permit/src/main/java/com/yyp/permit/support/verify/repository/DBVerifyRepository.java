@@ -59,9 +59,12 @@ public class DBVerifyRepository extends AbstractVerifyRepository {
     public DBVerifyRepository initRepository() {
         super.initRepository();
         ValidExecutor validExecutor = getExecutor(repositoryQuery, new Object[0]);
-        int verify_warehouse_start_init = validExecutor.execute(executor -> logger.info("verify warehouse start init"));
-        Assert.state(verify_warehouse_start_init != -1, "verify db repository initialization failed");
-        validExecutor.getResult().forEach(dataMap -> addPermitRepository((String) dataMap.get(permitName), (String) dataMap.get(permissionName)));
+        int verify_warehouse_start_init = validExecutor.execute(executor -> {
+            logger.info("verify warehouse start init");
+            return null;
+        });
+        Assert.state(verify_warehouse_start_init != 0, "verify db repository initialization failed");
+        validExecutor.getResult().forEach(dataMap -> addPermitRepository((String) dataMap.get(permitName), dataMap.get(permissionName)));
         return this;
     }
 }

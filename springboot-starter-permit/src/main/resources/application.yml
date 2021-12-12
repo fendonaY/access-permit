@@ -11,3 +11,7 @@ logging:
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:SSS} [%t] - [%p] [%c:%L] [%M] %m%n)'
     file: '%d{yyyy-MM-dd HH:mm:SSS} [%t] - [%p] [%c:%L] [%M] %m%n)'
+
+permission:
+  archives-room:
+    room: redis

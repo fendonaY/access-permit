@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
-import javax.sql.DataSource;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -19,15 +18,18 @@ public class VerifyReport implements Serializable, Cloneable {
 
     public VerifyReport(String permit) {
         this.permit = permit;
+        this.phase = PermitToken.PermissionPhase.REGISTER;
     }
 
     public VerifyReport() {
+        this.phase = PermitToken.PermissionPhase.REGISTER;
     }
 
     public VerifyReport(Object targetObj, Class targetClass, Method targetMethod) {
         this.targetObj = targetObj;
         this.targetClass = targetClass;
         this.targetMethod = targetMethod;
+        this.phase = PermitToken.PermissionPhase.REGISTER;
     }
 
     @SneakyThrows
@@ -49,6 +51,8 @@ public class VerifyReport implements Serializable, Cloneable {
 
     @JSONField(serializeUsing = ToStringSerializer.class, deserializeUsing = IgnoreSerializer.class)
     private Object[] arguments;
+
+    private PermitToken.PermissionPhase phase;
 
     /**
      * 报告单号

@@ -32,14 +32,9 @@ public class RedisCacheArchivesRoom extends AbstractArchivesRoom implements Recy
 
     @Override
     public List<VerifyReport> register(PermissionInfo permissionInfo) {
-        Assert.isTrue(permissionInfo.getPhase() == PermitToken.PermissionPhase.ACCESS, "permissionInfo invalid");
-        permissionInfo.setPhase(PermitToken.PermissionPhase.REGISTER);
         putInRecycleBin();
         return permissionInfo.getAnnotationInfoList().stream().map(info -> {
-            VerifyReport report = getReport(info);
-            report.setTargetClass(permissionInfo.getTargetClass());
-            report.setTargetMethod(permissionInfo.getTargetMethod());
-            report.setTargetObj(permissionInfo.getTargetObj());
+            VerifyReport report = getReport(permissionInfo, info);
             RMap<String, String> cacheMap = redissonClient.getMap(getCacheKey(report));
             cacheMap.forEach((key, value) -> setRecordStore(parseId(key), JSONObject.parseObject(value, VerifyReport.class)));
             setRecordStore(info.getPermit(), report);
@@ -62,6 +57,7 @@ public class RedisCacheArchivesRoom extends AbstractArchivesRoom implements Recy
         if (annotationInfo.isValidCache()) {
             verifyReport.setArchive(true);
             verifyReport.setCurrent(false);
+            System.out.println("开始归档");
             RMap<Object, Object> map = redissonClient.getMap(getCacheKey(verifyReport));
             map.putIfAbsent(verifyReport.getId(), JSONObject.toJSONString(verifyReport));
         }

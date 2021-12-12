@@ -59,6 +59,9 @@ public class PermissionProperties {
     @Setter
     public static class ArchivesRoomProperties {
 
+        /**
+         * 文档室
+         */
         private String room;
 
     }

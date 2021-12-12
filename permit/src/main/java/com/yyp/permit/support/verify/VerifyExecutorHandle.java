@@ -1,8 +1,8 @@
 package com.yyp.permit.support.verify;
 
 @FunctionalInterface
-public interface VerifyExecutorHandle {
+public interface VerifyExecutorHandle<T> {
 
-    void handle(ValidExecutor validExecutor);
+    T handle(ValidExecutor validExecutor);
 
 }

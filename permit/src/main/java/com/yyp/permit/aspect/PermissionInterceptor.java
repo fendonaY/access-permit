@@ -5,6 +5,7 @@ import com.yyp.permit.annotation.parser.AnnotationParser;
 import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
 import com.yyp.permit.annotation.parser.PermissionAnnotationParser;
 import com.yyp.permit.support.*;
+import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.support.AopUtils;
@@ -15,6 +16,7 @@ import org.springframework.util.ClassUtils;
 import java.lang.reflect.Method;
 import java.util.List;
 
+@Slf4j
 public class PermissionInterceptor implements MethodInterceptor {
 
     private SecurityDept securityDept;
@@ -47,20 +49,30 @@ public class PermissionInterceptor implements MethodInterceptor {
         permissionInfo.setTargetMethod(method);
         permissionInfo.setTargetObj(methodInvocation.getThis());
         permissionInfo.setAnnotationInfoList(annotationInfo.getAnnotationInfo());
-        PermissionContext permissionContext = securityDept.register(permissionInfo);
-        PermitToken permitToken = securityDept.securityVerify(permissionContext);
-        PermissionManager.issuedPassCheck(permitToken);
+        return doInvoke(permissionInfo, method, methodInvocation);
+    }
+
+    protected Object doInvoke(PermissionInfo permissionInfo, Method method, MethodInvocation methodInvocation) throws Throwable {
+        PermitToken permitToken = null;
         try {
+            PermissionContext permissionContext = securityDept.register(permissionInfo);
+            permitToken = securityDept.securityVerify(permissionContext);
+            PermissionManager.issuedPassCheck(permitToken);
             if (!permitToken.isVerify()) {
                 Assert.isTrue(!RejectStrategy.VIOLENCE.equals(permitToken.getRejectStrategy()), permitToken.getExplain());
                 return returnFail(method);
             }
-            return methodInvocation.proceed();
         } finally {
-            PermissionManager.cancelPassCheck(permitToken);
-            if (PermissionManager.getPermitToken() == null)
-                PermissionManager.clearRecycleBin();
+            if (permitToken != null)
+                PermissionManager.cancelPassCheck(permitToken);
+            try {
+                if (PermissionManager.getPermitToken() == null)
+                    PermissionManager.clearRecycleBin();
+            } catch (Exception e) {
+                log.error("归档失败");
+            }
         }
+        return methodInvocation.proceed();
     }
 
     private Object returnFail(Method method) {

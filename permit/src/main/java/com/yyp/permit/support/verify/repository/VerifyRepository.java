@@ -7,7 +7,7 @@ public interface VerifyRepository {
 
     VerifyRepository initRepository();
 
-    String getPermission(String permit);
+    Object getPermission(String permit);
 
     ValidExecutor getExecutor(VerifyReport verifyReport);
 }

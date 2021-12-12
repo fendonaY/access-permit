@@ -1,11 +1,12 @@
 package com.yyp.permit.spring;
 
+import com.yyp.permit.aspect.IdempotenceLimit;
 import com.yyp.permit.support.ArchivesRoom;
 import com.yyp.permit.support.SecurityDept;
 import com.yyp.permit.support.VerifyRecordDept;
+import com.yyp.permit.support.verify.VerifyTemplate;
 import com.yyp.permit.support.verify.repository.DBVerifyRepository;
 import com.yyp.permit.support.verify.repository.VerifyRepository;
-import com.yyp.permit.support.verify.VerifyTemplate;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -32,6 +33,11 @@ public class PermissionAutoConfiguration {
     @ConditionalOnMissingBean
     public VerifyRepository getDBVerifyRepository(ObjectProvider<DataSource[]> dataSources) {
         return new DBVerifyRepository(dataSources);
+    }
+
+    @Bean
+    public IdempotenceLimit getIdempotenceLimit() {
+        return new IdempotenceLimit();
     }
 
     @Bean

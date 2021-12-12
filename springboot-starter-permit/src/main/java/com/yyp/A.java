@@ -1,13 +1,19 @@
 package com.yyp;
 
+import com.yyp.permit.support.verify.FunctionalVerify;
+import com.yyp.permit.support.verify.VerifyTemplate;
+import com.yyp.permit.support.verify.repository.TestVerifyRepository;
+import com.yyp.permit.support.verify.repository.VerifyRepository;
 import lombok.SneakyThrows;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ResourceLoader;
@@ -17,9 +23,12 @@ import java.io.InputStreamReader;
 
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
 public class A {
+
+
     public static void main(String[] args) {
         SpringApplication.run(A.class, args);
     }
+
     @SneakyThrows
     @Bean
     public RedissonClient redissonClient() {

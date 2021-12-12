@@ -14,12 +14,16 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom {
     /**
      * 登记档案
      */
-    VerifyReport getReport(PermissionAnnotationInfo annotationInfo) {
+    VerifyReport getReport(PermissionInfo permissionInfo, PermissionAnnotationInfo annotationInfo) {
         VerifyReport verifyReport = new VerifyReport(annotationInfo.getPermit());
         verifyReport.setAnnotationInfo(annotationInfo);
         verifyReport.setSuggest(annotationInfo.getMessage());
-        verifyReport.setId(getReportId(verifyReport));
         verifyReport.setCurrent(true);
+        verifyReport.setTargetClass(permissionInfo.getTargetClass());
+        verifyReport.setTargetMethod(permissionInfo.getTargetMethod());
+        verifyReport.setTargetObj(permissionInfo.getTargetObj());
+        verifyReport.setArguments(permissionInfo.getArguments());
+        verifyReport.setId(getReportId(verifyReport));
         return verifyReport;
     }
 
@@ -38,9 +42,8 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom {
         Map<String, VerifyReport> recordStore = getRecordStore();
         Set<String> permitReportIdMap = getPermitReportIdMap(oldReport.getPermit());
         permitReportIdMap.remove(oldReport.getId());
-        permitReportIdMap.add(newReport.getId());
         recordStore.remove(oldReport.getId());
-        recordStore.putIfAbsent(newReport.getId(), newReport);
+        setRecordStore(newReport.getPermit(), newReport);
     }
 
     @Override
@@ -53,7 +56,8 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom {
     }
 
     public void setRecordStore(String permit, VerifyReport verifyReport) {
-        getPermitReportIdMap(permit).add(verifyReport.getId());
+        Set<String> permitReportIdMap = getPermitReportIdMap(permit);
+        permitReportIdMap.add(verifyReport.getId());
         getRecordStore().compute(verifyReport.getId(), (key, oldValue) -> {
             if (oldValue != null) {
                 oldValue.setTargetClass(verifyReport.getTargetClass());

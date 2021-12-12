@@ -2,11 +2,9 @@ package com.yyp.permit.support.verify;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
-import com.yyp.permit.support.PermissionVerifyExecutor;
 import com.yyp.permit.support.VerifyReport;
 import com.yyp.permit.support.verify.repository.DBVerifyRepository;
 import com.yyp.permit.support.verify.repository.VerifyRepository;
-import org.springframework.beans.factory.InitializingBean;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,7 +14,7 @@ import java.util.stream.Collectors;
  * @description:
  * @date 2021/4/713:48
  */
-public final class VerifyTemplate implements InitializingBean {
+public final class VerifyTemplate {
 
     private VerifyExecutorHandle defaultHandle;
 
@@ -24,10 +22,7 @@ public final class VerifyTemplate implements InitializingBean {
 
     public VerifyTemplate(VerifyRepository verifyRepository) {
         this.verifyRepository = verifyRepository;
-    }
-
-    public VerifyExecutorHandle getDefaultHandle() {
-        return defaultHandle;
+        this.defaultHandle = defaultHandle();
     }
 
     public void setDefaultHandle(VerifyExecutorHandle defaultHandle) {
@@ -46,7 +41,7 @@ public final class VerifyTemplate implements InitializingBean {
     public boolean validParams(VerifyReport verifyReport) {
         PermissionAnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
         ValidExecutor executor = getVerifyRepository().getExecutor(verifyReport);
-        int execute = executor.execute(defaultHandle);
+        int execute = executor.execute(this.defaultHandle);
         List<Map<String, Object>> result = executor.getResult();
         verifyReport.setValidResultObject(getValidResultObject(executor));
         verifyReport.setValidResult(execute == -1 ? !annotationInfo.isCanEmpty() ? !result.isEmpty() : true : execute > 0);
@@ -57,40 +52,37 @@ public final class VerifyTemplate implements InitializingBean {
         return executor.getResult().stream().map(r -> JSONObject.toJSON(r)).collect(Collectors.toList());
     }
 
-    @Override
-    public void afterPropertiesSet() {
-        if (this.defaultHandle == null) {
-            this.defaultHandle = new VerifyExecutorHandle() {
-                @Override
-                public void handle(ValidExecutor validExecutor) {
-                    PermissionVerifyExecutor permissionValidExecutor = (PermissionVerifyExecutor) validExecutor;
-                    Object[] params = permissionValidExecutor.getParams();
-                    String sql = permissionValidExecutor.getSql();
-                    List<Object> newParams = new ArrayList(params.length * 2);
-                    List array = null;
-                    for (int i = 0; i < params.length; i++) {
-                        Object param = params[i];
-                        if (param instanceof List) {
-                            if (param instanceof Collection)
-                                newParams.addAll(array = (List) param);
-                            else
-                                newParams.addAll(array = Arrays.asList((Object[]) param));
-                            continue;
-                        }
-                        newParams.add(param);
+    public VerifyExecutorHandle defaultHandle() {
+        return new VerifyExecutorHandle() {
+            @Override
+            public Object handle(ValidExecutor validExecutor) {
+                DataBaseVerifyExecutor permissionValidExecutor = (DataBaseVerifyExecutor) validExecutor;
+                Object[] params = permissionValidExecutor.getParams();
+                String sql = permissionValidExecutor.getSql();
+                List<Object> newParams = new ArrayList(params.length * 2);
+                List array = null;
+                for (int i = 0; i < params.length; i++) {
+                    Object param = params[i];
+                    if (param instanceof List) {
+                        if (param instanceof Collection)
+                            newParams.addAll(array = (List) param);
+                        else
+                            newParams.addAll(array = Arrays.asList((Object[]) param));
+                        continue;
                     }
-                    if (array != null) {
-                        StringBuffer stringBuffer = new StringBuffer("?");
-                        for (int i = 0; i <= array.size() - 2; i++) {
-                            stringBuffer.append(",?");
-                        }
-                        permissionValidExecutor.setSql(sql.replace("?IN?", stringBuffer.toString()));
-                        permissionValidExecutor.setParams(newParams.toArray());
-                        handle(validExecutor);
-                    }
+                    newParams.add(param);
                 }
-            };
-        }
+                if (array != null) {
+                    StringBuffer stringBuffer = new StringBuffer("?");
+                    for (int i = 0; i <= array.size() - 2; i++) {
+                        stringBuffer.append(",?");
+                    }
+                    permissionValidExecutor.setSql(sql.replace("?IN?", stringBuffer.toString()));
+                    permissionValidExecutor.setParams(newParams.toArray());
+                    handle(validExecutor);
+                }
+                return null;
+            }
+        };
     }
-
 }

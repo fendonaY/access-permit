@@ -14,6 +14,7 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
@@ -39,6 +40,7 @@ import java.util.stream.Collectors;
 @Aspect
 @Component
 @Slf4j
+@Order(0)
 public class IdempotenceLimit {
 
     @Resource
