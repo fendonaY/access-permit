@@ -41,7 +41,6 @@ public class PermissionInterceptor implements MethodInterceptor {
         final Method method = BridgeMethodResolver.findBridgedMethod(specificMethod);
         if (!annotationParser.isCandidateClass(targetClass))
             return methodInvocation.proceed();
-
         PermissionInfo permissionInfo = new PermissionInfo();
         AnnotationInfoProvider<List<PermissionAnnotationInfo>> annotationInfo = annotationParser.getAnnotationInfo(method, targetClass);
         permissionInfo.setTargetClass(targetClass);
