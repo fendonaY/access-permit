@@ -1,4 +1,4 @@
-package com.yyp.permit.dept.verify;
+package com.yyp.permit.dept.verifier;
 
 import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
 import com.yyp.permit.context.PermissionInfo;

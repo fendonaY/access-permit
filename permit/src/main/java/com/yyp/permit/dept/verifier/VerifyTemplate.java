@@ -1,10 +1,10 @@
-package com.yyp.permit.dept.verify;
+package com.yyp.permit.dept.verifier;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
 import com.yyp.permit.dept.room.VerifyReport;
-import com.yyp.permit.dept.verify.repository.DBVerifyRepository;
-import com.yyp.permit.dept.verify.repository.VerifyRepository;
+import com.yyp.permit.dept.verifier.repository.DBVerifyRepository;
+import com.yyp.permit.dept.verifier.repository.VerifyRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;

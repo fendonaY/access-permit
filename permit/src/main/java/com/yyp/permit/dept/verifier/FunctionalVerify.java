@@ -1,4 +1,4 @@
-package com.yyp.permit.dept.verify;
+package com.yyp.permit.dept.verifier;
 
 import java.util.List;
 import java.util.Map;

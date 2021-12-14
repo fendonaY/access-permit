@@ -1,4 +1,4 @@
-package com.yyp.permit.dept.verify;
+package com.yyp.permit.dept.verifier;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

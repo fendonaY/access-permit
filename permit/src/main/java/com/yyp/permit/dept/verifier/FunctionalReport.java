@@ -1,4 +1,4 @@
-package com.yyp.permit.dept.verify;
+package com.yyp.permit.dept.verifier;
 
 import com.yyp.permit.dept.room.VerifyReport;
 import org.springframework.beans.BeanUtils;

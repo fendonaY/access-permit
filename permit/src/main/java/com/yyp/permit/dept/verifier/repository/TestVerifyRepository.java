@@ -1,4 +1,4 @@
-package com.yyp.permit.dept.verify.repository;
+package com.yyp.permit.dept.verifier.repository;
 
 import org.springframework.stereotype.Component;
 

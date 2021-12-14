@@ -1,4 +1,4 @@
-package com.yyp.permit.dept.verify.repository;
+package com.yyp.permit.dept.verifier.repository;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;

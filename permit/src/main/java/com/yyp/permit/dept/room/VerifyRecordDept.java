@@ -2,7 +2,7 @@ package com.yyp.permit.dept.room;
 
 import com.yyp.permit.aspect.RejectStrategy;
 import com.yyp.permit.context.*;
-import com.yyp.permit.dept.verify.Verifier;
+import com.yyp.permit.dept.verifier.Verifier;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;

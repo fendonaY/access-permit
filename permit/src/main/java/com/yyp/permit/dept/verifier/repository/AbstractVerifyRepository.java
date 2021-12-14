@@ -1,10 +1,10 @@
-package com.yyp.permit.dept.verify.repository;
+package com.yyp.permit.dept.verifier.repository;
 
 import com.yyp.permit.dept.room.VerifyReport;
-import com.yyp.permit.dept.verify.DataBaseVerifyExecutor;
-import com.yyp.permit.dept.verify.FunctionalVerify;
-import com.yyp.permit.dept.verify.FunctionalVerifyExecutor;
-import com.yyp.permit.dept.verify.ValidExecutor;
+import com.yyp.permit.dept.verifier.DataBaseVerifyExecutor;
+import com.yyp.permit.dept.verifier.FunctionalVerify;
+import com.yyp.permit.dept.verifier.FunctionalVerifyExecutor;
+import com.yyp.permit.dept.verifier.ValidExecutor;
 import org.springframework.util.Assert;
 
 import javax.sql.DataSource;

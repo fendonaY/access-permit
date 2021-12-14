@@ -1,6 +1,6 @@
-package com.yyp.permit.dept.verify.repository;
+package com.yyp.permit.dept.verifier.repository;
 
-import com.yyp.permit.dept.verify.ValidExecutor;
+import com.yyp.permit.dept.verifier.ValidExecutor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.ObjectProvider;

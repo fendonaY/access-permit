@@ -1,7 +1,7 @@
-package com.yyp.permit.dept.verify.repository;
+package com.yyp.permit.dept.verifier.repository;
 
 import com.yyp.permit.dept.room.VerifyReport;
-import com.yyp.permit.dept.verify.ValidExecutor;
+import com.yyp.permit.dept.verifier.ValidExecutor;
 
 public interface VerifyRepository {
 

@@ -1,4 +1,4 @@
-package com.yyp.permit.dept.verify;
+package com.yyp.permit.dept.verifier;
 
 import java.util.List;
 import java.util.Map;
@@ -23,7 +23,7 @@ public interface ValidExecutor {
      * </p>
      *
      * @return 校验结果
-     * @see com.yyp.permit.dept.verify.repository.VerifyRepository#getPermission(String)
+     * @see com.yyp.permit.dept.verifier.repository.VerifyRepository#getPermission(String)
      */
     List<Map<String, Object>> getResult();
 }

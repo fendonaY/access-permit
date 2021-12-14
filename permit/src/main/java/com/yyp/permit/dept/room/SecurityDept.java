@@ -3,7 +3,7 @@ package com.yyp.permit.dept.room;
 import com.yyp.permit.context.PermissionContext;
 import com.yyp.permit.context.PermissionInfo;
 import com.yyp.permit.context.PermitToken;
-import com.yyp.permit.dept.verify.Verifier;
+import com.yyp.permit.dept.verifier.Verifier;
 
 import java.util.List;
 
