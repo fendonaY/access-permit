@@ -1,19 +1,13 @@
 package com.yyp;
 
-import com.yyp.permit.support.verify.FunctionalVerify;
-import com.yyp.permit.support.verify.VerifyTemplate;
-import com.yyp.permit.support.verify.repository.TestVerifyRepository;
-import com.yyp.permit.support.verify.repository.VerifyRepository;
 import lombok.SneakyThrows;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.Config;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ResourceLoader;

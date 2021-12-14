@@ -2,23 +2,23 @@ package com.yyp.permit.spring;
 
 import com.yyp.permit.support.ArchivesRoom;
 import com.yyp.permit.support.LocalCacheArchivesRoom;
-import com.yyp.permit.support.LogArchivesRoom;
 import com.yyp.permit.support.RedisCacheArchivesRoom;
 import com.yyp.permit.support.verify.repository.DBVerifyRepository;
 import com.yyp.permit.support.verify.repository.RedisVerifyRepository;
 import com.yyp.permit.support.verify.repository.TestVerifyRepository;
 import com.yyp.permit.support.verify.repository.VerifyRepository;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.ObjectUtils;
 
 import javax.sql.DataSource;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Configuration(proxyBeanMethods = false)
 //@ConditionalOnSingleCandidate(DataSource.class)
@@ -26,26 +26,40 @@ import java.util.Optional;
 @EnableConfigurationProperties({PermissionProperties.class})
 public class PropertiesAutoConfiguration {
 
-    private PermissionProperties permissionProperties;
+    private PermissionProperties properties;
 
-    public PropertiesAutoConfiguration(PermissionProperties permissionProperties) {
-        this.permissionProperties = permissionProperties;
+    public PropertiesAutoConfiguration(PermissionProperties properties) {
+        ofNull(properties::getCache, Boolean.TRUE, properties::setCache);
+        ofNull(properties::getTimeUnit, TimeUnit.MILLISECONDS, properties::setTimeUnit);
+
+        PermissionProperties.VerifyRepositoryProperties verifyRepository = properties.getVerifyRepository();
+        ofNull(verifyRepository::getRepository, "db", verifyRepository::setRepository);
+        ofNull(verifyRepository::getLocalCache, Boolean.TRUE, verifyRepository::setLocalCache);
+        ofNull(verifyRepository::getPermitName, "PERMIT", verifyRepository::setPermitName);
+        ofNull(verifyRepository::getPermissionName, "EXEC_PERMIT", verifyRepository::setPermissionName);
+        ofNull(verifyRepository::getInitSql, "SELECT PERMIT,EXEC_PERMIT FROM permit_dict", verifyRepository::setInitSql);
+
+        PermissionProperties.ArchivesRoomProperties archivesRoom = properties.getArchivesRoom();
+        ofNull(archivesRoom::getRoom, "redis", archivesRoom::setRoom);
+        ofNull(archivesRoom::getCacheStrategy, "default", archivesRoom::setCacheStrategy);
+
+        this.properties = properties;
     }
 
     @Bean
     @ConditionalOnMissingBean
     public VerifyRepository getVerifyRepository(ObjectProvider<DataSource[]> dataSources) {
-        String repository = permissionProperties.getVerifyRepository() == null ? "" : permissionProperties.getVerifyRepository().getRepository();
+        String repository = properties.getVerifyRepository() == null ? "" : properties.getVerifyRepository().getRepository();
         if ("db".equals(repository)) {
             DBVerifyRepository dbVerifyRepository = new DBVerifyRepository(dataSources);
-            Optional.of(permissionProperties.getVerifyRepository().getInitSql()).ifPresent(dbVerifyRepository::setRepositoryQuery);
-            Optional.of(permissionProperties.getVerifyRepository().getPermitName()).ifPresent(dbVerifyRepository::setPermitName);
-            Optional.of(permissionProperties.getVerifyRepository().getPermissionName()).ifPresent(dbVerifyRepository::setPermissionName);
+            Optional.of(properties.getVerifyRepository().getInitSql()).ifPresent(dbVerifyRepository::setRepositoryQuery);
+            Optional.of(properties.getVerifyRepository().getPermitName()).ifPresent(dbVerifyRepository::setPermitName);
+            Optional.of(properties.getVerifyRepository().getPermissionName()).ifPresent(dbVerifyRepository::setPermissionName);
             return dbVerifyRepository;
         } else if ("redis".equals(repository)) {
             RedisVerifyRepository redisVerifyRepository = new RedisVerifyRepository(dataSources);
-            redisVerifyRepository.setCacheKey(permissionProperties.getVerifyRepository().getCacheKey());
-            redisVerifyRepository.setLocalCache(permissionProperties.getVerifyRepository().isLocalCache());
+            redisVerifyRepository.setCacheKey(properties.getVerifyRepository().getCacheKey());
+            redisVerifyRepository.setLocalCache(properties.getVerifyRepository().getLocalCache());
             return redisVerifyRepository;
         } else {
             return new TestVerifyRepository();
@@ -55,13 +69,20 @@ public class PropertiesAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ArchivesRoom getArchivesRoom() {
-        String room = permissionProperties.getArchivesRoom() == null ? "" : permissionProperties.getArchivesRoom().getRoom();
-        if ("log".equals(room)) {
-            return new LogArchivesRoom(new LocalCacheArchivesRoom());
-        } else if ("local".equals(room)) {
+        String room = properties.getArchivesRoom().getRoom();
+        String cacheStrategy = properties.getArchivesRoom().getCacheStrategy();
+        if ("local".equals(room)) {
             return new LocalCacheArchivesRoom();
-        } else {
-            return new RedisCacheArchivesRoom();
+        } else if ("redis".equals(room)) {
+            RedisCacheArchivesRoom redisCacheArchivesRoom = new RedisCacheArchivesRoom();
+            redisCacheArchivesRoom.setCacheStrategy(cacheStrategy);
+            return redisCacheArchivesRoom;
+        } else throw new IllegalArgumentException(room + " illegal archivers room");
+    }
+
+    private <T> void ofNull(Supplier value, T defaultValue, Consumer<T> consumer) {
+        if (ObjectUtils.isEmpty(value.get())) {
+            consumer.accept(defaultValue);
         }
     }
 }

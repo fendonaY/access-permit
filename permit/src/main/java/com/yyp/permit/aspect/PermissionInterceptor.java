@@ -54,13 +54,19 @@ public class PermissionInterceptor implements MethodInterceptor {
     protected Object doInvoke(PermissionInfo permissionInfo, Method method, MethodInvocation methodInvocation) throws Throwable {
         PermitToken permitToken = null;
         try {
-            PermissionContext permissionContext = securityDept.register(permissionInfo);
-            permitToken = securityDept.securityVerify(permissionContext);
-            PermissionManager.issuedPassCheck(permitToken);
-            if (!permitToken.isVerify()) {
-                Assert.isTrue(!RejectStrategy.VIOLENCE.equals(permitToken.getRejectStrategy()), permitToken.getExplain());
-                return returnFail(method);
+            try {
+                PermissionContext permissionContext = securityDept.register(permissionInfo);
+                permitToken = securityDept.securityVerify(permissionContext);
+                PermissionManager.issuedPassCheck(permitToken);
+                if (!permitToken.isVerify()) {
+                    Assert.isTrue(!RejectStrategy.VIOLENCE.equals(permitToken.getRejectStrategy()), permitToken.getExplain());
+                    return returnFail(method);
+                }
+            } catch (Exception e) {
+                log.error("{}.{} security verify exception", permissionInfo.getTargetClass().getName(), permissionInfo.getTargetMethod().getName());
+                throw e;
             }
+            return methodInvocation.proceed();
         } finally {
             if (permitToken != null)
                 PermissionManager.cancelPassCheck(permitToken);
@@ -68,10 +74,9 @@ public class PermissionInterceptor implements MethodInterceptor {
                 if (PermissionManager.getPermitToken() == null)
                     PermissionManager.clearRecycleBin();
             } catch (Exception e) {
-                log.error("归档失败");
+                log.error("归档失败:", e);
             }
         }
-        return methodInvocation.proceed();
     }
 
     private Object returnFail(Method method) {

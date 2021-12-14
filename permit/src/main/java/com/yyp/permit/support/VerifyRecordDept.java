@@ -86,10 +86,15 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
         for (String permit : permissionContext.getPermits()) {
             List<Verifier> verifiers = getVerifier(permit);
             verifiers.forEach(verifier -> verifier.finishVerify(permissionContext, permit));
-            reports.add(this.archivesRoom.getVerifyReport(permit));
-            if (!(this.archivesRoom instanceof RecycleBin))
-                this.archivesRoom.archive(permit);
+            VerifyReport verifyReport = this.archivesRoom.getVerifyReport(permit);
+            reports.add(verifyReport);
+            if (this.archivesRoom instanceof AbstractArchivesRoom) {
+                ((AbstractArchivesRoom) this.archivesRoom).setRecordStore(permit, verifyReport);
+            }
         }
+        //校验完成之后需要清除一级缓存的所有数据
+        ((AbstractArchivesRoom) this.archivesRoom).getPermitReportIdMap().clear();
+        ((AbstractArchivesRoom) this.archivesRoom).getCurrentRecordStore().clear();
         return reports;
     }
 

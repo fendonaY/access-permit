@@ -1,0 +1,43 @@
+{
+  "hints": [
+    {
+      "name": "permission.verify-repository.repository",
+      "values": [
+        {
+          "value": "db",
+          "description": "关系型仓库,往往关联关系型数据库."
+        },
+        {
+          "value": "redis",
+          "description": "redis仓库,关联redis数据库."
+        }
+      ]
+    },
+    {
+      "name": "permission.archives-room.room",
+      "values": [
+        {
+          "value": "local",
+          "description": "本地缓存作为档案室."
+        },
+        {
+          "value": "redis",
+          "description": "redis数据库作为档案室."
+        }
+      ]
+    },
+    {
+      "name": "permission.archives-room.cache-strategy",
+      "values": [
+        {
+          "value": "default",
+          "description": "默认策略，缓存时将记录校验元信息."
+        },
+        {
+          "value": "simple",
+          "description": "简单策略，缓存时只记录校验结果，即0或者1."
+        }
+      ]
+    }
+  ]
+}

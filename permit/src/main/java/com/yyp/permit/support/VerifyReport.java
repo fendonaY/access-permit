@@ -7,6 +7,7 @@ import com.yyp.permit.serializer.ToStringSerializer;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@ToString
 public class VerifyReport implements Serializable, Cloneable {
 
     public VerifyReport(String permit) {
@@ -99,4 +101,13 @@ public class VerifyReport implements Serializable, Cloneable {
      */
     private boolean current;
 
+    @Override
+    public String toString() {
+        return "VerifyReport{" +
+                "id='" + id + '\'' +
+                ", permit='" + permit + '\'' +
+                ", archive=" + archive +
+                ", current=" + current +
+                '}';
+    }
 }

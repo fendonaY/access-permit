@@ -17,11 +17,11 @@ public class DBVerifyRepository extends AbstractVerifyRepository {
 
     private final Log logger = LogFactory.getLog(getClass());
 
-    private String permitName = "PERMIT";
+    private String permitName;
 
-    private String permissionName = "EXEC_PERMIT";
+    private String permissionName;
 
-    private String repositoryQuery = "SELECT PERMIT,EXEC_PERMIT FROM permit_dict";
+    private String repositoryQuery;
 
     public DBVerifyRepository(ObjectProvider<DataSource[]> dataSources) {
         DataSource[] ifAvailable = dataSources.getIfAvailable();
