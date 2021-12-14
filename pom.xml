@@ -5,6 +5,7 @@
     <modules>
         <module>permit</module>
         <module>springboot-starter-permit</module>
+        <module>permit-spring</module>
     </modules>
     <parent>
         <groupId>org.springframework.boot</groupId>

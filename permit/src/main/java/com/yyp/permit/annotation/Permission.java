@@ -39,7 +39,7 @@ public @interface Permission {
 
     /**
      * 校验结果是否可以为空
-     * true:如果依赖{@link com.yyp.permit.support.PermissionContext#getValidResultObject(String)}校验直接通过
+     * true:如果依赖{@link com.yyp.permit.context.PermissionContext#getValidResultObject(String)}校验直接通过
      * false:通过校验器返回的数据如果为空，则不通过，如果不为空，则通过
      */
     boolean canEmpty() default false;

@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>com.yyp.permit</groupId>
-            <artifactId>permit</artifactId>
+            <artifactId>permit-spring</artifactId>
             <version>1.0.1</version>
         </dependency>
     </dependencies>
