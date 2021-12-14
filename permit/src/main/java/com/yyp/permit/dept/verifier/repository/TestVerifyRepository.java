@@ -2,7 +2,6 @@ package com.yyp.permit.dept.verifier.repository;
 
 import org.springframework.stereotype.Component;
 
-@Component
 public class TestVerifyRepository extends AbstractVerifyRepository {
 
     public TestVerifyRepository initRepository() {
