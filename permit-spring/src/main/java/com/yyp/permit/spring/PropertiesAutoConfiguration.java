@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.util.ObjectUtils;
 
 import javax.sql.DataSource;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -49,17 +48,17 @@ public class PropertiesAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public VerifyRepository getVerifyRepository(ObjectProvider<DataSource[]> dataSources) {
-        String repository = properties.getVerifyRepository() == null ? "" : properties.getVerifyRepository().getRepository();
-        if ("db".equals(repository)) {
+        PermissionProperties.VerifyRepositoryProperties verifyRepository = properties.getVerifyRepository();
+        if ("db".equals(verifyRepository.getRepository())) {
             DBVerifyRepository dbVerifyRepository = new DBVerifyRepository(dataSources);
-            Optional.of(properties.getVerifyRepository().getInitSql()).ifPresent(dbVerifyRepository::setRepositoryQuery);
-            Optional.of(properties.getVerifyRepository().getPermitName()).ifPresent(dbVerifyRepository::setPermitName);
-            Optional.of(properties.getVerifyRepository().getPermissionName()).ifPresent(dbVerifyRepository::setPermissionName);
+            dbVerifyRepository.setRepositoryQuery(verifyRepository.getInitSql());
+            dbVerifyRepository.setPermissionName(verifyRepository.getPermissionName());
+            dbVerifyRepository.setPermitName(verifyRepository.getPermitName());
             return dbVerifyRepository;
-        } else if ("redis".equals(repository)) {
+        } else if ("redis".equals(verifyRepository.getRepository())) {
             RedisVerifyRepository redisVerifyRepository = new RedisVerifyRepository(dataSources);
-            redisVerifyRepository.setCacheKey(properties.getVerifyRepository().getCacheKey());
-            redisVerifyRepository.setLocalCache(properties.getVerifyRepository().getLocalCache());
+            redisVerifyRepository.setCacheKey(verifyRepository.getCacheKey());
+            redisVerifyRepository.setLocalCache(verifyRepository.getLocalCache());
             return redisVerifyRepository;
         } else {
             return new TestVerifyRepository();
