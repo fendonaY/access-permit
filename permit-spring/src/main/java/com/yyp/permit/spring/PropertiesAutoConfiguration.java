@@ -4,8 +4,8 @@ import com.yyp.permit.dept.room.ArchivesRoom;
 import com.yyp.permit.dept.room.LocalCacheArchivesRoom;
 import com.yyp.permit.dept.room.RedisCacheArchivesRoom;
 import com.yyp.permit.dept.verifier.repository.DBVerifyRepository;
+import com.yyp.permit.dept.verifier.repository.EmptyVerifyRepository;
 import com.yyp.permit.dept.verifier.repository.RedisVerifyRepository;
-import com.yyp.permit.dept.verifier.repository.TestVerifyRepository;
 import com.yyp.permit.dept.verifier.repository.VerifyRepository;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -60,9 +60,9 @@ public class PropertiesAutoConfiguration {
             redisVerifyRepository.setCacheKey(verifyRepository.getCacheKey());
             redisVerifyRepository.setLocalCache(verifyRepository.getLocalCache());
             return redisVerifyRepository;
-        } else {
-            return new TestVerifyRepository();
-        }
+        } else if ("empty".equals(verifyRepository.getRepository())) {
+            return new EmptyVerifyRepository().initRepository();
+        } else throw new IllegalArgumentException(verifyRepository.getRepository() + " illegal verify repository");
     }
 
     @Bean

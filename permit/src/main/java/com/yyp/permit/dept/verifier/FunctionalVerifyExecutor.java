@@ -47,6 +47,7 @@ public class FunctionalVerifyExecutor implements ValidExecutor {
         return ((FunctionalVerify) verifyReport -> {
             int verify = functionalVerify.verify(verifyReport);
             setResult(verifyReport.getResult());
+            this.verifyReport.setSuggest(verifyReport.getSuggest());
             return verify;
         }).verify(FunctionalReport.getFunctionalReport(verifyReport));
     }

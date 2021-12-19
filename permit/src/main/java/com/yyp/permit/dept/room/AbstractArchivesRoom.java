@@ -1,9 +1,7 @@
 package com.yyp.permit.dept.room;
 
 import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
-import com.yyp.permit.context.PermissionInfo;
-import com.yyp.permit.context.RecycleBin;
-import com.yyp.permit.context.Rubbish;
+import com.yyp.permit.context.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
@@ -17,7 +15,7 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
 
     private NamedThreadLocal<Map<String, VerifyReport>> recordStore = new NamedThreadLocal<>("archives");
 
-    private NamedThreadLocal<Map<String, Set<String>>> permitReportIdMap = new NamedThreadLocal<>("permit report id map");
+    private NamedThreadLocal<Map<PermitToken, Map<String, Set<String>>>> permitReportIdMap = new NamedThreadLocal<>("permitToken report id map");
 
     private final String cachePrefix = "ARCHIVES_ROOM@$1_$2";
 
@@ -33,9 +31,6 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
         }).collect(Collectors.toList());
     }
 
-    /**
-     * 登记档案
-     */
     VerifyReport getReport(PermissionInfo permissionInfo, PermissionAnnotationInfo annotationInfo) {
         VerifyReport verifyReport = new VerifyReport(annotationInfo.getPermit());
         verifyReport.setAnnotationInfo(annotationInfo);
@@ -56,7 +51,7 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
         List<VerifyReport> current = ids.stream().map(id -> currentRecordStore.get(id)).filter(report -> report != null && report.isCurrent()).collect(Collectors.toList());
         if (current.isEmpty()) {
             Map<String, VerifyReport> recordStore = getRecordStore();
-            current = ids.stream().map(id -> recordStore.get(id)).filter(report -> report != null && report.isCurrent()).collect(Collectors.toList());
+            current = ids.stream().map(id -> recordStore.get(id)).filter(report -> report != null).collect(Collectors.toList());
         }
         Assert.state(!current.isEmpty(), permit + " archives doesn't exist");
         Assert.isTrue(current.size() == 1, permit + " has multiple(" + current.size() + ") current archives");
@@ -140,13 +135,11 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
         });
     }
 
-
     public void setRecordStore(String permit, VerifyReport verifyReport) {
         getCurrentRecordStore().remove(verifyReport.getId());
         verifyReport.setCurrent(false);
         getRecordStore().putIfAbsent(verifyReport.getId(), verifyReport);
     }
-
 
     public Map<String, VerifyReport> getCurrentRecordStore() {
         if (this.currentRecordStore.get() == null)
@@ -161,9 +154,15 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
     }
 
     protected Map<String, Set<String>> getPermitReportIdMap() {
-        if (this.permitReportIdMap.get() == null)
+        PermitToken permitToken = PermissionManager.getPermitToken();
+        if (this.permitReportIdMap.get() == null) {
             this.permitReportIdMap.set(new HashMap<>());
-        return permitReportIdMap.get();
+        }
+        Map<String, Set<String>> permitIdMap = permitReportIdMap.get().get(permitToken);
+        if (permitIdMap == null) {
+            this.permitReportIdMap.get().put(permitToken, new HashMap<>());
+        }
+        return permitReportIdMap.get().get(permitToken);
     }
 
     protected Set<String> getPermitReportIdMap(String permit) {

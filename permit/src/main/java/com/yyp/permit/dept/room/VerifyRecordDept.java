@@ -27,6 +27,8 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
 
     @Override
     public PermissionContext register(PermissionInfo permissionInfo) {
+        //提前签发通行证
+        PermissionManager.issuedPassCheck(PermitToken.reject());
         archivesRoom.register(permissionInfo);
         return new DefaultPermissionContext(this, permissionInfo);
     }
@@ -58,13 +60,21 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
 
         String errorMsg = reports.stream().filter(report -> !report.getValidResult()).map(report -> report.getSuggest()).collect(Collectors.joining(","));
         long count = reports.stream().filter(report -> !report.getValidResult()).filter(report -> RejectStrategy.VIOLENCE.equals(report.getAnnotationInfo().getStrategy())).count();
-        PermitToken permitToken;
+        PermitToken exposeToken = PermissionManager.getPermitToken();
+        boolean hasExpose = exposeToken != null;
         if (StringUtils.hasText(errorMsg)) {
-            permitToken = PermitToken.reject(errorMsg);
-        } else
-            permitToken = PermitToken.pass();
-        permitToken.setRejectStrategy(count > 0 ? RejectStrategy.VIOLENCE : RejectStrategy.GENTLE);
-        return permitToken;
+            exposeToken = !hasExpose ? PermitToken.reject(errorMsg) : exposeToken;
+            exposeToken.setExplain(errorMsg);
+        } else {
+            exposeToken = !hasExpose ? PermitToken.pass() : exposeToken;
+            exposeToken.setVerify(true);
+        }
+        exposeToken.setRejectStrategy(count > 0 ? RejectStrategy.VIOLENCE : RejectStrategy.GENTLE);
+        exposeToken.putPePermissionContext(permissionContext);
+        if (!hasExpose) {
+            PermissionManager.issuedPassCheck(exposeToken);
+        }
+        return exposeToken;
     }
 
     protected void prepareVerify(PermissionContext permissionContext) {
@@ -78,7 +88,7 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
         for (String permit : permissionContext.getPermits()) {
             refreshId(permit);
             List<Verifier> verifiers = getVerifier(permit);
-            verifiers.forEach(verifier -> verifier.verify(this.archivesRoom, permissionContext.getPermissionInfo(), permit));
+            verifiers.forEach(verifier -> verifier.verify(this.archivesRoom.getVerifyReport(permit), permissionContext.getPermissionInfo(), permit));
         }
     }
 
@@ -94,7 +104,6 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
             }
         }
         //校验完成之后需要清除一级缓存的所有数据
-        ((AbstractArchivesRoom) this.archivesRoom).getPermitReportIdMap().clear();
         ((AbstractArchivesRoom) this.archivesRoom).getCurrentRecordStore().clear();
         return reports;
     }

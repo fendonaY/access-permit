@@ -1,4 +1,4 @@
-package com.yyp;
+package com.yyp.permit.demo;
 
 import lombok.SneakyThrows;
 import org.redisson.Redisson;
@@ -16,11 +16,11 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import java.io.InputStreamReader;
 
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
-public class A {
+public class App {
 
 
     public static void main(String[] args) {
-        SpringApplication.run(A.class, args);
+        SpringApplication.run(App.class, args);
     }
 
     @SneakyThrows

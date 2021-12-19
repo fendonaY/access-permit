@@ -30,11 +30,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * @author yyp
- * @description:
- * @date 2021/5/2710:17
- */
 @EnableAspectJAutoProxy
 @Aspect
 @Slf4j

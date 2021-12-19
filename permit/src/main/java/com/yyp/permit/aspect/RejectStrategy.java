@@ -2,11 +2,6 @@ package com.yyp.permit.aspect;
 
 import lombok.Getter;
 
-/**
- * @author yyp
- * @description:
- * @date 2021/5/3110:30
- */
 @Getter
 public enum RejectStrategy {
 

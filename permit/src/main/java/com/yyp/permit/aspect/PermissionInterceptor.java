@@ -58,7 +58,6 @@ public class PermissionInterceptor implements MethodInterceptor {
             try {
                 PermissionContext permissionContext = securityDept.register(permissionInfo);
                 permitToken = securityDept.securityVerify(permissionContext);
-                PermissionManager.issuedPassCheck(permitToken);
                 if (!permitToken.isVerify()) {
                     Assert.isTrue(!RejectStrategy.VIOLENCE.equals(permitToken.getRejectStrategy()), permitToken.getExplain());
                     return returnFail(method);

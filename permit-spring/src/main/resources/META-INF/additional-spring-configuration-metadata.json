@@ -10,6 +10,10 @@
         {
           "value": "redis",
           "description": "redis仓库,关联redis数据库."
+        },
+        {
+          "value": "empty",
+          "description": "空仓库，没有任何校验令牌的仓库."
         }
       ]
     },

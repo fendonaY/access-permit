@@ -2,9 +2,10 @@ package com.yyp.permit.dept.verifier;
 
 import com.yyp.permit.annotation.SupportVerify;
 import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
-import com.yyp.permit.dept.room.ArchivesRoom;
+import com.yyp.permit.context.PermissionContext;
+import com.yyp.permit.context.PermissionInfo;
+import com.yyp.permit.context.PermitToken;
 import com.yyp.permit.dept.room.VerifyReport;
-import com.yyp.permit.context.*;
 
 @SupportVerify(value = "defaultVerifier")
 public class DefaultVerifier implements Verifier {
@@ -25,8 +26,7 @@ public class DefaultVerifier implements Verifier {
     }
 
     @Override
-    public boolean verify(ArchivesRoom archivesRoom, PermissionInfo permissionInfo, String permit) {
-        VerifyReport verifyReport = archivesRoom.getVerifyReport(permit);
+    public boolean verify(VerifyReport verifyReport, PermissionInfo permissionInfo, String permit) {
         if (verifyReport.getValidResult() == null)
             verifyTemplate.validParams(verifyReport);
         return verifyReport.getValidResult();

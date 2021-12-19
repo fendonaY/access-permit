@@ -19,7 +19,7 @@ public interface PermissionContext {
 
     boolean getValidResult(String permit);
 
-    List getValidResultObject(String permit);
+    <E> List<E> getValidResultObject(String permit);
 
 
 }

@@ -7,10 +7,12 @@ logging:
   file:
     max-history: 1000
     max-size: 50MB
-    name: /home/username/msj/msj-web-account-server/msj-web-account-server.log
+    name: /home/username/permit.log
   pattern:
     console: '%d{yyyy-MM-dd HH:mm:SSS} [%t] - [%p] [%c:%L] [%M] %m%n)'
     file: '%d{yyyy-MM-dd HH:mm:SSS} [%t] - [%p] [%c:%L] [%M] %m%n)'
 permission:
   archives-room:
-    room: local
+    room: redis
+  verify-repository:
+    repository: empty

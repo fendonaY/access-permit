@@ -1,8 +1,8 @@
 package com.yyp.permit.dept.verifier;
 
-import com.yyp.permit.dept.room.ArchivesRoom;
 import com.yyp.permit.context.PermissionContext;
 import com.yyp.permit.context.PermissionInfo;
+import com.yyp.permit.dept.room.VerifyReport;
 
 public interface Verifier {
 
@@ -14,7 +14,7 @@ public interface Verifier {
     /**
      * 验证
      */
-    boolean verify(ArchivesRoom archivesRoom, PermissionInfo permissionInfo, String permit);
+    boolean verify(VerifyReport verifyReport, PermissionInfo permissionInfo, String permit);
 
     /**
      * 验证完成

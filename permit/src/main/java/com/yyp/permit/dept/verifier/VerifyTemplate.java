@@ -43,13 +43,9 @@ public final class VerifyTemplate {
         ValidExecutor executor = getVerifyRepository().getExecutor(verifyReport);
         int execute = executor.execute(this.defaultHandle);
         List<Map<String, Object>> result = executor.getResult();
-        verifyReport.setValidResultObject(getValidResultObject(executor));
+        verifyReport.setValidResultObject(result);
         verifyReport.setValidResult(execute == -1 ? !annotationInfo.isCanEmpty() ? !result.isEmpty() : true : execute > 0);
         return verifyReport.getValidResult();
-    }
-
-    private List getValidResultObject(ValidExecutor executor) {
-        return executor.getResult().stream().map(r -> JSONObject.toJSON(r)).collect(Collectors.toList());
     }
 
     public VerifyExecutorHandle defaultHandle() {
