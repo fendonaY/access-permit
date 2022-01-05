@@ -1,12 +1,18 @@
 package com.yyp.permit.util;
 
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -15,6 +21,7 @@ import java.util.stream.Collectors;
  * @date 2021/5/2713:52
  */
 public class ParamUtil {
+    private static final Logger log = LoggerFactory.getLogger(ParamUtil.class);
 
     private ParamUtil() {
 
@@ -89,7 +96,7 @@ public class ParamUtil {
     }
 
     public static String getKeyMD5(String dataKey, Object[] args) {
-        return dataKey + "$$" + SecureUtil.md5(JSONArray.toJSONString(args));
+        return dataKey + "$$" + SecureUtil.md5(args.toString());
     }
 
     private static Object findKey(String key, Object obj) {
@@ -101,17 +108,33 @@ public class ParamUtil {
                     return value;
             }
         } else {
-            JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(obj));
-            if (jsonObject.containsKey(key)) {
-                return jsonObject.get(key);
+            Field[] fields = ReflectUtil.getFields(obj.getClass());
+            Optional<Field> first = Arrays.stream(fields).filter(field -> field.getName().equals(key)).findFirst();
+            if (first.isPresent()) {
+                Field field = first.get();
+                boolean accessible = field.isAccessible();
+                Object o = null;
+                try {
+                    field.setAccessible(true);
+                    o = field.get(obj);
+                } catch (IllegalAccessException e) {
+                    log.warn("get {} filed:{} error", obj.getClass().getSimpleName(), field.getName());
+                }
+                field.setAccessible(accessible);
+                return o;
             } else {
-                Set<Map.Entry<String, Object>> set = jsonObject.entrySet();
-                for (Map.Entry next : set) {
+                for (int i = 0; i < fields.length; i++) {
+                    Field field = fields[i];
                     try {
-                        Object value = findKey(key, next.getValue());
+                        boolean accessible = field.isAccessible();
+                        field.setAccessible(true);
+                        Object o = field.get(obj);
+                        field.setAccessible(accessible);
+                        Object value = findKey(key, o);
                         if (value != null)
                             return value;
                     } catch (Exception e) {
+                        log.warn("get {} filed:{} error", obj.getClass().getSimpleName(), field.getName());
                     }
                 }
             }

@@ -30,7 +30,7 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
         //提前签发通行证
         PermissionManager.issuedPassCheck(PermitToken.reject());
         archivesRoom.register(permissionInfo);
-        return new DefaultPermissionContext(this, permissionInfo);
+        return new EasyGetPermissionContext(this, permissionInfo);
     }
 
     @Override

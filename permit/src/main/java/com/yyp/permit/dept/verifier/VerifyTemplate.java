@@ -1,20 +1,16 @@
 package com.yyp.permit.dept.verifier;
 
-import com.alibaba.fastjson.JSONObject;
 import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
 import com.yyp.permit.dept.room.VerifyReport;
 import com.yyp.permit.dept.verifier.repository.DBVerifyRepository;
 import com.yyp.permit.dept.verifier.repository.VerifyRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-/**
- * @author yyp
- * @description:
- * @date 2021/4/713:48
- */
 public final class VerifyTemplate {
+    private static final Logger log = LoggerFactory.getLogger(VerifyTemplate.class);
 
     private VerifyExecutorHandle defaultHandle;
 
@@ -37,11 +33,15 @@ public final class VerifyTemplate {
         this.verifyRepository = verifyRepository;
     }
 
-
     public boolean validParams(VerifyReport verifyReport) {
         PermissionAnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
         ValidExecutor executor = getVerifyRepository().getExecutor(verifyReport);
-        int execute = executor.execute(this.defaultHandle);
+        int execute = 0;
+        try {
+            execute = executor.execute(this.defaultHandle);
+        } catch (Exception e) {
+            log.error("executor execute error：{}", e);
+        }
         List<Map<String, Object>> result = executor.getResult();
         verifyReport.setValidResultObject(result);
         verifyReport.setValidResult(execute == -1 ? !annotationInfo.isCanEmpty() ? !result.isEmpty() : true : execute > 0);

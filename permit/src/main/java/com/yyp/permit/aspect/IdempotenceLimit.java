@@ -12,14 +12,13 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -36,8 +35,7 @@ import java.util.stream.Collectors;
 @Order(0)
 public class IdempotenceLimit {
 
-    @Resource
-    @Lazy
+    @Autowired(required = false)
     private RedissonClient redissonClient;
 
     private final String IDEMPOTENCE_KEY = "idempotence@";

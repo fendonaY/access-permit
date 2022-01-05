@@ -4,8 +4,12 @@ import com.yyp.permit.annotation.parser.AnnotationInfoProvider;
 import com.yyp.permit.annotation.parser.AnnotationParser;
 import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
 import com.yyp.permit.annotation.parser.PermissionAnnotationParser;
+import com.yyp.permit.context.PermissionContext;
+import com.yyp.permit.context.PermissionInfo;
+import com.yyp.permit.context.PermissionManager;
+import com.yyp.permit.context.PermitToken;
 import com.yyp.permit.dept.room.SecurityDept;
-import com.yyp.permit.context.*;
+import com.yyp.permit.exception.PermitException;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -33,6 +37,18 @@ public class PermissionInterceptor implements MethodInterceptor {
 
     public void setSecurityDept(SecurityDept securityDept) {
         this.securityDept = securityDept;
+    }
+
+    public SecurityDept getSecurityDept() {
+        return securityDept;
+    }
+
+    public AnnotationParser getAnnotationParser() {
+        return annotationParser;
+    }
+
+    public void setAnnotationParser(AnnotationParser annotationParser) {
+        this.annotationParser = annotationParser;
     }
 
     @Override
@@ -64,7 +80,7 @@ public class PermissionInterceptor implements MethodInterceptor {
                 }
             } catch (Exception e) {
                 log.error("{}.{} security verify exception", permissionInfo.getTargetClass().getName(), permissionInfo.getTargetMethod().getName());
-                throw e;
+                throw new PermitException(e.getMessage());
             }
             return methodInvocation.proceed();
         } finally {

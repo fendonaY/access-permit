@@ -15,7 +15,7 @@ public interface PermissionContext {
 
     VerifyReport getReport(String permit);
 
-    Object getValidData(String permit);
+    Object[] getValidData(String permit);
 
     boolean getValidResult(String permit);
 
