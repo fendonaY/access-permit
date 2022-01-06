@@ -10,9 +10,10 @@ import com.yyp.permit.context.PermissionManager;
 import com.yyp.permit.context.PermitToken;
 import com.yyp.permit.dept.room.SecurityDept;
 import com.yyp.permit.exception.PermitException;
-import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.BridgeMethodResolver;
 import org.springframework.util.Assert;
@@ -21,8 +22,8 @@ import org.springframework.util.ClassUtils;
 import java.lang.reflect.Method;
 import java.util.List;
 
-@Slf4j
 public class PermissionInterceptor implements MethodInterceptor {
+    private static final Logger log = LoggerFactory.getLogger(PermissionInterceptor.class);
 
     private SecurityDept securityDept;
 

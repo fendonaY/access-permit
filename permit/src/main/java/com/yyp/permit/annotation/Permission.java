@@ -25,7 +25,7 @@ public @interface Permission {
 
     /**
      * 需要校验的id的下标
-     * 如果是表单的参数形式，则需要指定账套id的下标，如果JSON参数形式则不用。
+     * 如果是表单的参数形式，则需要指定账套id的下标，如果JAVABEAN形式则不用。
      * 如果与 {@link Permission#names()}同时指定，indexes优先。
      * 从0开始
      */
@@ -33,7 +33,7 @@ public @interface Permission {
 
     /**
      * 需要校验的字段名称
-     * 如果是JSON参数形式，则需要指定字段名称，如果表单参数形式则不用
+     * 如果是JAVABEAN参数形式，则需要指定字段名称，如果表单参数形式则不用
      */
     String[] names() default {};
 

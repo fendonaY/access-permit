@@ -9,10 +9,7 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -100,12 +97,28 @@ public class ParamUtil {
     }
 
     private static Object findKey(String key, Object obj) {
-        if (ObjectUtils.isArray(obj)) {
+        if (ObjectUtils.isArray(obj) || obj instanceof Collection) {
             JSONArray jsonArray = JSONArray.parseArray(JSONArray.toJSONString(obj));
             for (int i = 0; i < jsonArray.size(); i++) {
                 Object value = findKey(key, jsonArray.get(i));
                 if (value != null)
                     return value;
+            }
+        } else if (obj instanceof Map) {
+            Map<String, Object> obj1 = (Map<String, Object>) obj;
+            if (obj1.containsKey(key)) {
+                return obj1.get(key);
+            } else {
+                Set<Map.Entry<String, Object>> set = obj1.entrySet();
+                for (Map.Entry next : set) {
+                    try {
+                        Object value = findKey(key, next.getValue());
+                        if (value != null)
+                            return value;
+                    } catch (Exception e) {
+                        log.warn("get {} filed:{} error", obj.getClass().getSimpleName(), next.getKey());
+                    }
+                }
             }
         } else {
             Field[] fields = ReflectUtil.getFields(obj.getClass());

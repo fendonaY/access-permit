@@ -8,4 +8,9 @@ public class PermitException extends RuntimeException {
         super(message);
         this.message = message;
     }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
 }
