@@ -18,7 +18,6 @@ public class PermissionManager {
     }
 
     public static void cancelPassCheck(PermitToken permitToken) {
-        permitToken.clear();
         passCheck.set(permitToken.getOldPermitToken());
     }
 

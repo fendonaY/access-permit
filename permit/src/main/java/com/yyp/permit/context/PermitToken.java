@@ -1,15 +1,13 @@
 package com.yyp.permit.context;
 
 import com.yyp.permit.aspect.RejectStrategy;
-import org.springframework.core.NamedThreadLocal;
 
 public class PermitToken {
-
-    private NamedThreadLocal<PermissionContext> permissionContextCache = new NamedThreadLocal<>("permissionContext");
-
     public enum PermissionPhase {
         REGISTER, VERIFIED
     }
+
+    private PermissionContext permissionContext;
 
     private PermitToken oldPermitToken;
 
@@ -22,15 +20,11 @@ public class PermitToken {
     private String explain;
 
     public PermissionContext getPermissionContext() {
-        return permissionContextCache.get();
+        return this.permissionContext;
     }
 
     public void putPePermissionContext(PermissionContext permissionContext) {
-        permissionContextCache.set(permissionContext);
-    }
-
-    protected void clear() {
-        permissionContextCache.remove();
+        this.permissionContext = permissionContext;
     }
 
     public static PermitToken pass(String explain) {
