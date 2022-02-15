@@ -7,7 +7,7 @@ public class PermitToken {
         REGISTER, VERIFIED
     }
 
-    private PermissionContext permissionContext;
+    private PermitContext permitContext;
 
     private PermitToken oldPermitToken;
 
@@ -19,12 +19,12 @@ public class PermitToken {
 
     private String explain;
 
-    public PermissionContext getPermissionContext() {
-        return this.permissionContext;
+    public PermitContext getPermissionContext() {
+        return this.permitContext;
     }
 
-    public void putPePermissionContext(PermissionContext permissionContext) {
-        this.permissionContext = permissionContext;
+    public void putPePermissionContext(PermitContext permitContext) {
+        this.permitContext = permitContext;
     }
 
     public static PermitToken pass(String explain) {

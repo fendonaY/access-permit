@@ -2,11 +2,11 @@ package com.yyp.permit.aspect;
 
 import com.yyp.permit.annotation.parser.AnnotationInfoProvider;
 import com.yyp.permit.annotation.parser.AnnotationParser;
-import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
-import com.yyp.permit.annotation.parser.PermissionAnnotationParser;
-import com.yyp.permit.context.PermissionContext;
-import com.yyp.permit.context.PermissionInfo;
-import com.yyp.permit.context.PermissionManager;
+import com.yyp.permit.annotation.parser.PermitAnnotationInfo;
+import com.yyp.permit.annotation.parser.PermitAnnotationParser;
+import com.yyp.permit.context.PermitContext;
+import com.yyp.permit.context.PermitInfo;
+import com.yyp.permit.context.PermitManager;
 import com.yyp.permit.context.PermitToken;
 import com.yyp.permit.dept.room.SecurityDept;
 import com.yyp.permit.exception.PermitException;
@@ -27,7 +27,7 @@ public class PermissionInterceptor implements MethodInterceptor {
 
     private SecurityDept securityDept;
 
-    private AnnotationParser annotationParser = new PermissionAnnotationParser();
+    private AnnotationParser annotationParser = new PermitAnnotationParser();
 
     public PermissionInterceptor(SecurityDept securityDept) {
         this.securityDept = securityDept;
@@ -59,37 +59,37 @@ public class PermissionInterceptor implements MethodInterceptor {
         final Method method = BridgeMethodResolver.findBridgedMethod(specificMethod);
         if (!annotationParser.isCandidateClass(targetClass))
             return methodInvocation.proceed();
-        PermissionInfo permissionInfo = new PermissionInfo();
-        AnnotationInfoProvider<List<PermissionAnnotationInfo>> annotationInfo = annotationParser.getAnnotationInfo(method, targetClass);
-        permissionInfo.setTargetClass(targetClass);
-        permissionInfo.setArguments(methodInvocation.getArguments());
-        permissionInfo.setTargetMethod(method);
-        permissionInfo.setTargetObj(methodInvocation.getThis());
-        permissionInfo.setAnnotationInfoList(annotationInfo.getAnnotationInfo());
-        return doInvoke(permissionInfo, method, methodInvocation);
+        PermitInfo permitInfo = new PermitInfo();
+        AnnotationInfoProvider<List<PermitAnnotationInfo>> annotationInfo = annotationParser.getAnnotationInfo(method, targetClass);
+        permitInfo.setTargetClass(targetClass);
+        permitInfo.setArguments(methodInvocation.getArguments());
+        permitInfo.setTargetMethod(method);
+        permitInfo.setTargetObj(methodInvocation.getThis());
+        permitInfo.setAnnotationInfoList(annotationInfo.getAnnotationInfo());
+        return doInvoke(permitInfo, method, methodInvocation);
     }
 
-    protected Object doInvoke(PermissionInfo permissionInfo, Method method, MethodInvocation methodInvocation) throws Throwable {
+    protected Object doInvoke(PermitInfo permitInfo, Method method, MethodInvocation methodInvocation) throws Throwable {
         PermitToken permitToken = null;
         try {
             try {
-                PermissionContext permissionContext = securityDept.register(permissionInfo);
-                permitToken = securityDept.securityVerify(permissionContext);
+                PermitContext permitContext = securityDept.register(permitInfo);
+                permitToken = securityDept.securityVerify(permitContext);
                 if (!permitToken.isVerify()) {
                     Assert.isTrue(!RejectStrategy.VIOLENCE.equals(permitToken.getRejectStrategy()), permitToken.getExplain());
                     return returnFail(method);
                 }
             } catch (Exception e) {
-                log.error("{}.{} security verify exception", permissionInfo.getTargetClass().getName(), permissionInfo.getTargetMethod().getName());
+                log.error("{}.{} security verify exception", permitInfo.getTargetClass().getName(), permitInfo.getTargetMethod().getName());
                 throw new PermitException(e.getMessage());
             }
             return methodInvocation.proceed();
         } finally {
             if (permitToken != null)
-                PermissionManager.cancelPassCheck(permitToken);
+                PermitManager.cancelPassCheck(permitToken);
             try {
-                if (PermissionManager.getPermitToken() == null)
-                    PermissionManager.clearRecycleBin();
+                if (PermitManager.getPermitToken() == null)
+                    PermitManager.clearRecycleBin();
             } catch (Exception e) {
                 log.error("归档失败:", e);
             }

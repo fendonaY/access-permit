@@ -1,7 +1,7 @@
 package com.yyp.permit.demo.service.impl;
 
-import com.yyp.permit.context.PermissionContext;
-import com.yyp.permit.context.PermissionManager;
+import com.yyp.permit.context.PermitContext;
+import com.yyp.permit.context.PermitManager;
 import com.yyp.permit.demo.model.StockBo;
 import com.yyp.permit.demo.model.UserBo;
 import com.yyp.permit.demo.model.dto.BuyGoodsDto;
@@ -17,8 +17,8 @@ public class StockServiceImpl implements StockService {
 
     @Override
     public void buy(BuyGoodsDto buyGoodsDto) {
-        PermissionContext permissionContext = PermissionManager.getPermitToken().getPermissionContext();
-        List<Map<String, Object>> buyGoods = permissionContext.getValidResultObject("buyGoods");
+        PermitContext permitContext = PermitManager.getPermitToken().getPermissionContext();
+        List<Map<String, Object>> buyGoods = permitContext.getValidResultObject("buyGoods");
         Assert.notEmpty(buyGoods, "拒绝处理");
         Map<String, Object> validResult = buyGoods.get(0);
         UserBo user = (UserBo) validResult.get("user");

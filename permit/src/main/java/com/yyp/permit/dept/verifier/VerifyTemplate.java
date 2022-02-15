@@ -1,6 +1,6 @@
 package com.yyp.permit.dept.verifier;
 
-import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
+import com.yyp.permit.annotation.parser.PermitAnnotationInfo;
 import com.yyp.permit.dept.room.VerifyReport;
 import com.yyp.permit.dept.verifier.repository.DBVerifyRepository;
 import com.yyp.permit.dept.verifier.repository.VerifyRepository;
@@ -34,7 +34,7 @@ public final class VerifyTemplate {
     }
 
     public boolean validParams(VerifyReport verifyReport) {
-        PermissionAnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
+        PermitAnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
         ValidExecutor executor = getVerifyRepository().getExecutor(verifyReport);
         int execute = 0;
         try {

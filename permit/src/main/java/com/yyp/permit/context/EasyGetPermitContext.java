@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-public class EasyGetPermissionContext extends DefaultPermissionContext {
+public class EasyGetPermitContext extends DefaultPermitContext {
 
-    public EasyGetPermissionContext(SecurityDept securityDept, PermissionInfo permissionInfo) {
-        super(securityDept, permissionInfo);
+    public EasyGetPermitContext(SecurityDept securityDept, PermitInfo permitInfo) {
+        super(securityDept, permitInfo);
     }
 
     public <E> E getValidResultObjectIfOne(String permit) {

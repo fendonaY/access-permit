@@ -1,6 +1,6 @@
 package com.yyp.permit.context;
 
-import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
+import com.yyp.permit.annotation.parser.PermitAnnotationInfo;
 import lombok.Data;
 
 import java.lang.reflect.Method;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class PermissionInfo {
+public class PermitInfo {
 
     private Object targetObj;
 
@@ -18,9 +18,9 @@ public class PermissionInfo {
 
     private Object[] arguments;
 
-    private List<PermissionAnnotationInfo> annotationInfoList = new ArrayList<>();
+    private List<PermitAnnotationInfo> annotationInfoList = new ArrayList<>();
 
-    public PermissionAnnotationInfo getAnnotationInfo(String permit) {
+    public PermitAnnotationInfo getAnnotationInfo(String permit) {
         return annotationInfoList.stream().filter(ann -> permit.equals(ann.getPermit())).findFirst().get();
     }
 }

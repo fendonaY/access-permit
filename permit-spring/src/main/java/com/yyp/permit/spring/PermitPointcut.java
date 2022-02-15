@@ -1,6 +1,6 @@
 package com.yyp.permit.spring;
 
-import com.yyp.permit.annotation.Permission;
+import com.yyp.permit.annotation.Permit;
 import com.yyp.permit.util.AnnotationUtil;
 import org.springframework.aop.ClassFilter;
 import org.springframework.aop.MethodMatcher;
@@ -8,7 +8,7 @@ import org.springframework.aop.Pointcut;
 
 import java.lang.reflect.Method;
 
-public class PermissionPointcut implements Pointcut, MethodMatcher {
+public class PermitPointcut implements Pointcut, MethodMatcher {
 
     @Override
     public ClassFilter getClassFilter() {
@@ -22,7 +22,7 @@ public class PermissionPointcut implements Pointcut, MethodMatcher {
 
     @Override
     public boolean matches(Method method, Class<?> targetClass) {
-        return AnnotationUtil.existsAnnotation(targetClass, Permission.class) || AnnotationUtil.existsAnnotation(targetClass, Permission.List.class);
+        return AnnotationUtil.existsAnnotation(targetClass, Permit.class) || AnnotationUtil.existsAnnotation(targetClass, Permit.List.class);
     }
 
     @Override

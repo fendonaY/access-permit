@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class PermissionManager {
+public class PermitManager {
 
     private static NamedThreadLocal<PermitToken> passCheck = new NamedThreadLocal("permit token");
 

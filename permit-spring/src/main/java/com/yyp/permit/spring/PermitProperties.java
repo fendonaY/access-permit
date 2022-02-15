@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 @ConfigurationProperties(prefix = "permission")
 @Getter
 @Setter
-public class PermissionProperties {
+public class PermitProperties {
 
     /**
      * true开始校验结果缓存，false则不缓存

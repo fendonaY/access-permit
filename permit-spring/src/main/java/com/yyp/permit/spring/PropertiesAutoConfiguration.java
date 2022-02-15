@@ -22,23 +22,23 @@ import java.util.function.Supplier;
 @Configuration(proxyBeanMethods = false)
 //@ConditionalOnSingleCandidate(DataSource.class)
 //@AutoConfigureAfter({DataSourceAutoConfiguration.class})
-@EnableConfigurationProperties({PermissionProperties.class})
+@EnableConfigurationProperties({PermitProperties.class})
 public class PropertiesAutoConfiguration {
 
-    private PermissionProperties properties;
+    private PermitProperties properties;
 
-    public PropertiesAutoConfiguration(PermissionProperties properties) {
+    public PropertiesAutoConfiguration(PermitProperties properties) {
         ofNull(properties::getCache, Boolean.TRUE, properties::setCache);
         ofNull(properties::getTimeUnit, TimeUnit.MILLISECONDS, properties::setTimeUnit);
 
-        PermissionProperties.VerifyRepositoryProperties verifyRepository = properties.getVerifyRepository();
+        PermitProperties.VerifyRepositoryProperties verifyRepository = properties.getVerifyRepository();
         ofNull(verifyRepository::getRepository, "db", verifyRepository::setRepository);
         ofNull(verifyRepository::getLocalCache, Boolean.TRUE, verifyRepository::setLocalCache);
         ofNull(verifyRepository::getPermitName, "PERMIT", verifyRepository::setPermitName);
         ofNull(verifyRepository::getPermissionName, "EXEC_PERMIT", verifyRepository::setPermissionName);
         ofNull(verifyRepository::getInitSql, "SELECT PERMIT,EXEC_PERMIT FROM permit_dict", verifyRepository::setInitSql);
 
-        PermissionProperties.ArchivesRoomProperties archivesRoom = properties.getArchivesRoom();
+        PermitProperties.ArchivesRoomProperties archivesRoom = properties.getArchivesRoom();
         ofNull(archivesRoom::getRoom, "redis", archivesRoom::setRoom);
         ofNull(archivesRoom::getCacheStrategy, "default", archivesRoom::setCacheStrategy);
 
@@ -48,7 +48,7 @@ public class PropertiesAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public VerifyRepository getVerifyRepository(ObjectProvider<DataSource[]> dataSources) {
-        PermissionProperties.VerifyRepositoryProperties verifyRepository = properties.getVerifyRepository();
+        PermitProperties.VerifyRepositoryProperties verifyRepository = properties.getVerifyRepository();
         if ("db".equals(verifyRepository.getRepository())) {
             DBVerifyRepository dbVerifyRepository = new DBVerifyRepository(dataSources);
             dbVerifyRepository.setRepositoryQuery(verifyRepository.getInitSql());

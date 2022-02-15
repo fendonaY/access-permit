@@ -1,7 +1,7 @@
 package com.yyp.permit.dept.room;
 
-import com.yyp.permit.context.PermissionContext;
-import com.yyp.permit.context.PermissionInfo;
+import com.yyp.permit.context.PermitContext;
+import com.yyp.permit.context.PermitInfo;
 import com.yyp.permit.context.PermitToken;
 import com.yyp.permit.dept.verifier.Verifier;
 
@@ -12,7 +12,7 @@ public interface SecurityDept {
     /**
      * 登记
      */
-    PermissionContext register(PermissionInfo permissionInfo);
+    PermitContext register(PermitInfo permitInfo);
 
     /**
      * 获取所有检查者
@@ -32,6 +32,6 @@ public interface SecurityDept {
     /**
      * 安全验证
      */
-    PermitToken securityVerify(PermissionContext permissionContext);
+    PermitToken securityVerify(PermitContext permitContext);
 
 }

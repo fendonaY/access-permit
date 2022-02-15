@@ -26,11 +26,11 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
     }
 
     @Override
-    public PermissionContext register(PermissionInfo permissionInfo) {
+    public PermitContext register(PermitInfo permitInfo) {
         //提前签发通行证
-        PermissionManager.issuedPassCheck(PermitToken.reject());
-        archivesRoom.register(permissionInfo);
-        return new EasyGetPermissionContext(this, permissionInfo);
+        PermitManager.issuedPassCheck(PermitToken.reject());
+        archivesRoom.register(permitInfo);
+        return new EasyGetPermitContext(this, permitInfo);
     }
 
     @Override
@@ -53,14 +53,14 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
     }
 
     @Override
-    public PermitToken securityVerify(PermissionContext permissionContext) {
-        prepareVerify(permissionContext);
-        doVerify(permissionContext);
-        List<VerifyReport> reports = finishVerify(permissionContext);
+    public PermitToken securityVerify(PermitContext permitContext) {
+        prepareVerify(permitContext);
+        doVerify(permitContext);
+        List<VerifyReport> reports = finishVerify(permitContext);
 
         String errorMsg = reports.stream().filter(report -> !report.getValidResult()).map(report -> report.getSuggest()).collect(Collectors.joining(","));
         long count = reports.stream().filter(report -> !report.getValidResult()).filter(report -> RejectStrategy.VIOLENCE.equals(report.getAnnotationInfo().getStrategy())).count();
-        PermitToken exposeToken = PermissionManager.getPermitToken();
+        PermitToken exposeToken = PermitManager.getPermitToken();
         boolean hasExpose = exposeToken != null;
         if (StringUtils.hasText(errorMsg)) {
             exposeToken = !hasExpose ? PermitToken.reject(errorMsg) : exposeToken;
@@ -70,33 +70,33 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
             exposeToken.setVerify(true);
         }
         exposeToken.setRejectStrategy(count > 0 ? RejectStrategy.VIOLENCE : RejectStrategy.GENTLE);
-        exposeToken.putPePermissionContext(permissionContext);
+        exposeToken.putPePermissionContext(permitContext);
         if (!hasExpose) {
-            PermissionManager.issuedPassCheck(exposeToken);
+            PermitManager.issuedPassCheck(exposeToken);
         }
         return exposeToken;
     }
 
-    protected void prepareVerify(PermissionContext permissionContext) {
-        for (String permit : permissionContext.getPermits()) {
+    protected void prepareVerify(PermitContext permitContext) {
+        for (String permit : permitContext.getPermits()) {
             List<Verifier> verifiers = getVerifier(permit);
-            verifiers.forEach(verifier -> verifier.prepareVerify(permissionContext, permit));
+            verifiers.forEach(verifier -> verifier.prepareVerify(permitContext, permit));
         }
     }
 
-    protected void doVerify(PermissionContext permissionContext) {
-        for (String permit : permissionContext.getPermits()) {
+    protected void doVerify(PermitContext permitContext) {
+        for (String permit : permitContext.getPermits()) {
             refreshId(permit);
             List<Verifier> verifiers = getVerifier(permit);
-            verifiers.forEach(verifier -> verifier.verify(this.archivesRoom.getVerifyReport(permit), permissionContext.getPermissionInfo(), permit));
+            verifiers.forEach(verifier -> verifier.verify(this.archivesRoom.getVerifyReport(permit), permitContext.getPermissionInfo(), permit));
         }
     }
 
-    protected List<VerifyReport> finishVerify(PermissionContext permissionContext) {
-        List<VerifyReport> reports = new ArrayList<>(permissionContext.getPermits().size());
-        for (String permit : permissionContext.getPermits()) {
+    protected List<VerifyReport> finishVerify(PermitContext permitContext) {
+        List<VerifyReport> reports = new ArrayList<>(permitContext.getPermits().size());
+        for (String permit : permitContext.getPermits()) {
             List<Verifier> verifiers = getVerifier(permit);
-            verifiers.forEach(verifier -> verifier.finishVerify(permissionContext, permit));
+            verifiers.forEach(verifier -> verifier.finishVerify(permitContext, permit));
             VerifyReport verifyReport = this.archivesRoom.getVerifyReport(permit);
             reports.add(verifyReport);
             if (this.archivesRoom instanceof AbstractArchivesRoom) {

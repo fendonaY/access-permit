@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.concurrent.TimeUnit;
 
 @Data
-public class PermissionAnnotationInfo {
+public class PermitAnnotationInfo {
 
     private String message;
 

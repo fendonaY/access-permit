@@ -6,18 +6,18 @@ import com.yyp.permit.dept.room.VerifyReport;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DefaultPermissionContext implements PermissionContext {
+public class DefaultPermitContext implements PermitContext {
 
     private SecurityDept securityDept;
 
-    private PermissionInfo permissionInfo;
+    private PermitInfo permitInfo;
 
-    public DefaultPermissionContext() {
+    public DefaultPermitContext() {
     }
 
-    public DefaultPermissionContext(SecurityDept securityDept, PermissionInfo permissionInfo) {
+    public DefaultPermitContext(SecurityDept securityDept, PermitInfo permitInfo) {
         this.securityDept = securityDept;
-        this.permissionInfo = permissionInfo;
+        this.permitInfo = permitInfo;
     }
 
     @Override
@@ -56,11 +56,11 @@ public class DefaultPermissionContext implements PermissionContext {
         this.securityDept = securityDept;
     }
 
-    public PermissionInfo getPermissionInfo() {
-        return this.permissionInfo;
+    public PermitInfo getPermissionInfo() {
+        return this.permitInfo;
     }
 
-    public void setPermissionInfo(PermissionInfo permissionInfo) {
-        this.permissionInfo = permissionInfo;
+    public void setPermissionInfo(PermitInfo permitInfo) {
+        this.permitInfo = permitInfo;
     }
 }

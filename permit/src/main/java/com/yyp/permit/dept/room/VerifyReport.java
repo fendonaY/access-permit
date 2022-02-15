@@ -1,7 +1,7 @@
 package com.yyp.permit.dept.room;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
+import com.yyp.permit.annotation.parser.PermitAnnotationInfo;
 import com.yyp.permit.serializer.IgnoreSerializer;
 import com.yyp.permit.serializer.ToStringSerializer;
 import com.yyp.permit.context.PermitToken;
@@ -41,7 +41,7 @@ public class VerifyReport implements Serializable, Cloneable {
         return (VerifyReport) super.clone();
     }
 
-    private PermissionAnnotationInfo annotationInfo;
+    private PermitAnnotationInfo annotationInfo;
 
     @JSONField(serializeUsing = ToStringSerializer.class, deserializeUsing = IgnoreSerializer.class)
     private Object targetObj;

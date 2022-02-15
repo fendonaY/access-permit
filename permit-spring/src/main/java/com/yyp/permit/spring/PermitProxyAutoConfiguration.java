@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 
 @Configuration(proxyBeanMethods=false)
-@AutoConfigureAfter({PermissionAutoConfiguration.class})
+@AutoConfigureAfter({PermitAutoConfiguration.class})
 @ConditionalOnBean({SecurityDept.class})
-public class PermissionProxyAutoConfiguration {
+public class PermitProxyAutoConfiguration {
 
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -26,7 +26,7 @@ public class PermissionProxyAutoConfiguration {
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
     public DefaultPointcutAdvisor permissionPointcutAdvisor(@Autowired PermissionInterceptor permissionInterceptor) {
         DefaultPointcutAdvisor defaultPointcutAdvisor = new DefaultPointcutAdvisor();
-        defaultPointcutAdvisor.setPointcut(new PermissionPointcut());
+        defaultPointcutAdvisor.setPointcut(new PermitPointcut());
         defaultPointcutAdvisor.setAdvice(permissionInterceptor);
         return defaultPointcutAdvisor;
     }

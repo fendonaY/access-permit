@@ -1,6 +1,6 @@
 package com.yyp.permit.dept.room;
 
-import com.yyp.permit.context.PermissionInfo;
+import com.yyp.permit.context.PermitInfo;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ public interface ArchivesRoom {
     /**
      * 登记档案
      */
-    List<VerifyReport> register(PermissionInfo permissionInfo);
+    List<VerifyReport> register(PermitInfo permitInfo);
 
     /**
      * 查询档案

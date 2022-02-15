@@ -1,6 +1,6 @@
 package com.yyp.permit.dept.room;
 
-import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
+import com.yyp.permit.annotation.parser.PermitAnnotationInfo;
 import com.yyp.permit.context.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.NamedThreadLocal;
@@ -20,10 +20,10 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
     private final String cachePrefix = "ARCHIVES_ROOM@$1_$2";
 
     @Override
-    public List<VerifyReport> register(PermissionInfo permissionInfo) {
+    public List<VerifyReport> register(PermitInfo permitInfo) {
         putInRecycleBin();
-        return permissionInfo.getAnnotationInfoList().stream().map(info -> {
-            VerifyReport report = getReport(permissionInfo, info);
+        return permitInfo.getAnnotationInfoList().stream().map(info -> {
+            VerifyReport report = getReport(permitInfo, info);
             Map<String, VerifyReport> archiversStore = getArchiversStore(report);
             archiversStore.forEach((key, value) -> setCurrentRecordStore(info.getPermit(), value));
             setCurrentRecordStore(info.getPermit(), report);
@@ -31,15 +31,15 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
         }).collect(Collectors.toList());
     }
 
-    VerifyReport getReport(PermissionInfo permissionInfo, PermissionAnnotationInfo annotationInfo) {
+    VerifyReport getReport(PermitInfo permitInfo, PermitAnnotationInfo annotationInfo) {
         VerifyReport verifyReport = new VerifyReport(annotationInfo.getPermit());
         verifyReport.setAnnotationInfo(annotationInfo);
         verifyReport.setSuggest(annotationInfo.getMessage());
         verifyReport.setCurrent(true);
-        verifyReport.setTargetClass(permissionInfo.getTargetClass());
-        verifyReport.setTargetMethod(permissionInfo.getTargetMethod());
-        verifyReport.setTargetObj(permissionInfo.getTargetObj());
-        verifyReport.setArguments(permissionInfo.getArguments());
+        verifyReport.setTargetClass(permitInfo.getTargetClass());
+        verifyReport.setTargetMethod(permitInfo.getTargetMethod());
+        verifyReport.setTargetObj(permitInfo.getTargetObj());
+        verifyReport.setArguments(permitInfo.getArguments());
         verifyReport.setId(getReportId(verifyReport));
         return verifyReport;
     }
@@ -80,7 +80,7 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
     @Override
     public void archive(VerifyReport verifyReport) {
         Assert.notNull(verifyReport.getAnnotationInfo(), "unknown report");
-        PermissionAnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
+        PermitAnnotationInfo annotationInfo = verifyReport.getAnnotationInfo();
         if (verifyReport.isArchive())
             return;
         if (annotationInfo.isValidCache()) {
@@ -154,7 +154,7 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
     }
 
     protected Map<String, Set<String>> getPermitReportIdMap() {
-        PermitToken permitToken = PermissionManager.getPermitToken();
+        PermitToken permitToken = PermitManager.getPermitToken();
         if (this.permitReportIdMap.get() == null) {
             this.permitReportIdMap.set(new HashMap<>());
         }

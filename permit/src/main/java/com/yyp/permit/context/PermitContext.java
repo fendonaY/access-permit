@@ -5,11 +5,11 @@ import com.yyp.permit.dept.room.VerifyReport;
 
 import java.util.List;
 
-public interface PermissionContext {
+public interface PermitContext {
 
     SecurityDept getSecurityDept();
 
-    PermissionInfo getPermissionInfo();
+    PermitInfo getPermissionInfo();
 
     List<String> getPermits();
 

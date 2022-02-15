@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Role;
 
 @Configuration(proxyBeanMethods = false)
 @AutoConfigureAfter({PropertiesAutoConfiguration.class})
-public class PermissionAutoConfiguration {
+public class PermitAutoConfiguration {
 
     @Bean("mainSecurityDept")
     @ConditionalOnMissingBean

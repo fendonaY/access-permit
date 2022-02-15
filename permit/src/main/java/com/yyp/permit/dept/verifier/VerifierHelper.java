@@ -1,7 +1,7 @@
 package com.yyp.permit.dept.verifier;
 
-import com.yyp.permit.annotation.parser.PermissionAnnotationInfo;
-import com.yyp.permit.context.PermissionInfo;
+import com.yyp.permit.annotation.parser.PermitAnnotationInfo;
+import com.yyp.permit.context.PermitInfo;
 import com.yyp.permit.dept.room.VerifyReport;
 import com.yyp.permit.util.ParamUtil;
 
@@ -13,21 +13,21 @@ import java.util.stream.Collectors;
 
 public class VerifierHelper {
 
-    public static void findValidData(VerifyReport verifyReport, PermissionInfo permissionInfo, PermissionAnnotationInfo annotationInfo) {
+    public static void findValidData(VerifyReport verifyReport, PermitInfo permitInfo, PermitAnnotationInfo annotationInfo) {
         List<Object> params = new ArrayList<>();
         if (verifyReport.getValidResult() == null) {
             int length = annotationInfo.getNames().length + annotationInfo.getIndexes().length;
             if (annotationInfo.getIndexes().length != 0) {
                 List<Object> finalParams = params;
-                Arrays.stream(annotationInfo.getIndexes()).forEach(index -> finalParams.add(ParamUtil.getAttr(index, "", permissionInfo.getArguments())));
+                Arrays.stream(annotationInfo.getIndexes()).forEach(index -> finalParams.add(ParamUtil.getAttr(index, "", permitInfo.getArguments())));
             }
             params.addAll(Arrays.stream(annotationInfo.getNames()).map(name -> {
                 String[] split = name.split("\\.");
                 Object value;
                 if (split.length > 1) {
-                    value = ParamUtil.getInlayAttr(split, split[0], ParamUtil.getNextAttr(split, split[0]), permissionInfo.getArguments());
+                    value = ParamUtil.getInlayAttr(split, split[0], ParamUtil.getNextAttr(split, split[0]), permitInfo.getArguments());
                 } else {
-                    value = ParamUtil.getAttrList(name, permissionInfo.getArguments());
+                    value = ParamUtil.getAttrList(name, permitInfo.getArguments());
                 }
                 return value;
             }).collect(Collectors.toList()));
