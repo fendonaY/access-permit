@@ -1,6 +1,5 @@
 package com.yyp.permit.spring;
 
-import com.yyp.permit.aspect.IdempotenceLimit;
 import com.yyp.permit.dept.room.ArchivesRoom;
 import com.yyp.permit.dept.room.SecurityDept;
 import com.yyp.permit.dept.room.VerifyRecordDept;
@@ -23,11 +22,6 @@ public class PermitAutoConfiguration {
     public SecurityDept getSecurityDept(@Autowired ArchivesRoom archivesRoom) {
         VerifyRecordDept verifyRecordDept = new VerifyRecordDept(archivesRoom);
         return verifyRecordDept;
-    }
-
-    @Bean
-    public IdempotenceLimit getIdempotenceLimit() {
-        return new IdempotenceLimit();
     }
 
     @Bean
