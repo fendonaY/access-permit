@@ -54,9 +54,6 @@ public class PermitAnnotationParser implements AnnotationParser<PermitAnnotation
         permitAnnotationInfo.setStrategy((RejectStrategy) annotation.getEnum("strategy", RejectStrategy.class));
         permitAnnotationInfo.setPermit(annotation.getString("permit"));
         permitAnnotationInfo.setValidCache(annotation.getBoolean("validCache"));
-        permitAnnotationInfo.setMinCacheTime(annotation.getInt("minCacheTime"));
-        permitAnnotationInfo.setMaxCacheTime(annotation.getInt("maxCacheTime"));
-        permitAnnotationInfo.setTimeUnit((TimeUnit) annotation.getEnum("timeUnit", TimeUnit.class));
         return permitAnnotationInfo;
 
     }

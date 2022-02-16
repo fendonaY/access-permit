@@ -54,26 +54,23 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
 
     @Override
     public PermitToken securityVerify(PermitContext permitContext) {
+        PermitToken exposeToken = PermitManager.getPermitToken();
+        exposeToken.putPePermissionContext(permitContext);
+        Assert.notNull(exposeToken,"please register first");
+
         prepareVerify(permitContext);
         doVerify(permitContext);
         List<VerifyReport> reports = finishVerify(permitContext);
 
         String errorMsg = reports.stream().filter(report -> !report.getValidResult()).map(report -> report.getSuggest()).collect(Collectors.joining(","));
         long count = reports.stream().filter(report -> !report.getValidResult()).filter(report -> RejectStrategy.VIOLENCE.equals(report.getAnnotationInfo().getStrategy())).count();
-        PermitToken exposeToken = PermitManager.getPermitToken();
-        boolean hasExpose = exposeToken != null;
         if (StringUtils.hasText(errorMsg)) {
-            exposeToken = !hasExpose ? PermitToken.reject(errorMsg) : exposeToken;
             exposeToken.setExplain(errorMsg);
         } else {
-            exposeToken = !hasExpose ? PermitToken.pass() : exposeToken;
             exposeToken.setVerify(true);
         }
         exposeToken.setRejectStrategy(count > 0 ? RejectStrategy.VIOLENCE : RejectStrategy.GENTLE);
         exposeToken.putPePermissionContext(permitContext);
-        if (!hasExpose) {
-            PermitManager.issuedPassCheck(exposeToken);
-        }
         return exposeToken;
     }
 

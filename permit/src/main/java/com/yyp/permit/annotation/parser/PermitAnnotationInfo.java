@@ -22,10 +22,13 @@ public class PermitAnnotationInfo {
 
     private boolean validCache;
 
+    @Deprecated
     private int minCacheTime;
 
+    @Deprecated
     private int maxCacheTime;
 
+    @Deprecated
     private TimeUnit timeUnit;
 
 }
