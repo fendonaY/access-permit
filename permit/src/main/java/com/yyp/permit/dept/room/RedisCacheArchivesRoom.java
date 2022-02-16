@@ -21,7 +21,7 @@ public class RedisCacheArchivesRoom extends AbstractArchivesRoom {
 
     private String cacheStrategy;
 
-    @Autowired
+    @Autowired(required = false)
     private RedissonClient redissonClient;
 
     public RedisCacheArchivesRoom() {

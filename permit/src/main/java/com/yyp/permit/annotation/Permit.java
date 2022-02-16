@@ -8,7 +8,6 @@ import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.util.concurrent.TimeUnit;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
@@ -57,24 +56,9 @@ public @interface Permit {
     String permit();
 
     /**
-     * 是否开启校验结果缓存 默认开启
+     * 是否开启校验结果缓存 默认关闭
      */
-    boolean validCache() default true;
-
-    /**
-     * 缓存最小时间
-     */
-    int minCacheTime() default 30;
-
-    /**
-     * 缓存最大时间
-     */
-    int maxCacheTime() default 60;
-
-    /**
-     * 缓存时间单位
-     */
-    TimeUnit timeUnit() default TimeUnit.MINUTES;
+    boolean validCache() default false;
 
     /**
      * Defines several {@link Permit} annotations on the same element.
