@@ -1,5 +1,6 @@
 package com.yyp.permit.dept.room;
 
+import cn.hutool.core.util.IdUtil;
 import com.yyp.permit.annotation.parser.PermitAnnotationInfo;
 import com.yyp.permit.context.*;
 import org.springframework.beans.BeanUtils;
@@ -40,7 +41,7 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
         verifyReport.setTargetMethod(permitInfo.getTargetMethod());
         verifyReport.setTargetObj(permitInfo.getTargetObj());
         verifyReport.setArguments(permitInfo.getArguments());
-        verifyReport.setId(getReportId(verifyReport));
+        verifyReport.setId(IdUtil.randomUUID());
         return verifyReport;
     }
 

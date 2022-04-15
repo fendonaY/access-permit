@@ -56,7 +56,7 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
     public PermitToken securityVerify(PermitContext permitContext) {
         PermitToken exposeToken = PermitManager.getPermitToken();
         exposeToken.putPePermissionContext(permitContext);
-        Assert.notNull(exposeToken,"please register first");
+        Assert.notNull(exposeToken, "please register first");
 
         prepareVerify(permitContext);
         doVerify(permitContext);
@@ -78,6 +78,9 @@ public class VerifyRecordDept implements SecurityDept, InitializingBean {
         for (String permit : permitContext.getPermits()) {
             List<Verifier> verifiers = getVerifier(permit);
             verifiers.forEach(verifier -> verifier.prepareVerify(permitContext, permit));
+            VerifyReport report = permitContext.getReport(permit);
+            if (report.getValidResult() == null)
+                report.setId(archivesRoom.getReportId(report));
         }
     }
 
