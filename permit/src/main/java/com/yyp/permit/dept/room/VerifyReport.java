@@ -2,13 +2,11 @@ package com.yyp.permit.dept.room;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.yyp.permit.annotation.parser.PermitAnnotationInfo;
+import com.yyp.permit.context.PermitToken;
 import com.yyp.permit.serializer.IgnoreSerializer;
 import com.yyp.permit.serializer.ToStringSerializer;
-import com.yyp.permit.context.PermitToken;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
-import lombok.ToString;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
@@ -16,8 +14,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString
-public class VerifyReport implements Serializable, Cloneable {
+public class VerifyReport implements Serializable {
 
     public VerifyReport(String permit) {
         this.permit = permit;
@@ -35,14 +32,6 @@ public class VerifyReport implements Serializable, Cloneable {
         this.phase = PermitToken.PermissionPhase.REGISTER;
     }
 
-    @SneakyThrows
-    @Override
-    protected VerifyReport clone() {
-        return (VerifyReport) super.clone();
-    }
-
-    private PermitAnnotationInfo annotationInfo;
-
     @JSONField(serializeUsing = ToStringSerializer.class, deserializeUsing = IgnoreSerializer.class)
     private Object targetObj;
 
@@ -56,6 +45,8 @@ public class VerifyReport implements Serializable, Cloneable {
     private Object[] arguments;
 
     private PermitToken.PermissionPhase phase;
+
+    private PermitAnnotationInfo annotationInfo;
 
     /**
      * 报告单号
@@ -97,18 +88,12 @@ public class VerifyReport implements Serializable, Cloneable {
      */
     private boolean archive;
 
-    /**
-     * 当前
-     */
-    private boolean current;
-
     @Override
     public String toString() {
         return "VerifyReport{" +
                 "id='" + id + '\'' +
                 ", permit='" + permit + '\'' +
                 ", archive=" + archive +
-                ", current=" + current +
                 '}';
     }
 }

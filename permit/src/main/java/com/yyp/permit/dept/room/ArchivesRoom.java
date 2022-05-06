@@ -17,9 +17,9 @@ public interface ArchivesRoom {
     VerifyReport getVerifyReport(String permit);
 
     /**
-     * 查询档案
+     * 登记所有档案
      */
-    VerifyReport getVerifyReport(String permit, String reportId);
+    List<VerifyReport> getVerifyReportList();
 
     /**
      * 删除档案
@@ -30,16 +30,5 @@ public interface ArchivesRoom {
      * 归档
      */
     void archive(VerifyReport verifyReport);
-
-    /**
-     * 更新档案
-     */
-    void update(VerifyReport oldReport, VerifyReport newReport);
-
-    /**
-     * 获取档案id
-     */
-    String getReportId(VerifyReport verifyReport);
-
 }
 

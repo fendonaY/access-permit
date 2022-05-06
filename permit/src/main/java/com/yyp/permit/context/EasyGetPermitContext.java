@@ -1,6 +1,6 @@
 package com.yyp.permit.context;
 
-import com.yyp.permit.dept.room.SecurityDept;
+import com.yyp.permit.dept.SecurityDept;
 import org.springframework.util.Assert;
 
 import java.util.List;

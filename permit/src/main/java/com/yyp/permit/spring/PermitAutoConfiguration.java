@@ -1,8 +1,8 @@
 package com.yyp.permit.spring;
 
 import com.yyp.permit.dept.room.ArchivesRoom;
-import com.yyp.permit.dept.room.SecurityDept;
-import com.yyp.permit.dept.room.VerifyRecordDept;
+import com.yyp.permit.dept.SecurityDept;
+import com.yyp.permit.dept.VerifyRecordDept;
 import com.yyp.permit.dept.verifier.VerifyTemplate;
 import com.yyp.permit.dept.verifier.repository.VerifyRepository;
 import org.springframework.beans.factory.annotation.Autowired;

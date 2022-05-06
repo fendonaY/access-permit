@@ -40,7 +40,7 @@ public class PropertiesAutoConfiguration {
 
         PermitProperties.ArchivesRoomProperties archivesRoom = properties.getArchivesRoom();
         ofNull(archivesRoom::getRoom, "redis", archivesRoom::setRoom);
-        ofNull(archivesRoom::getCacheStrategy, "default", archivesRoom::setCacheStrategy);
+        ofNull(archivesRoom::getCacheStrategy, "normal", archivesRoom::setCacheStrategy);
 
         this.properties = properties;
     }
@@ -69,12 +69,10 @@ public class PropertiesAutoConfiguration {
     @ConditionalOnMissingBean
     public ArchivesRoom getArchivesRoom() {
         String room = properties.getArchivesRoom().getRoom();
-        String cacheStrategy = properties.getArchivesRoom().getCacheStrategy();
         if ("local".equals(room)) {
             return new LocalCacheArchivesRoom();
         } else if ("redis".equals(room)) {
-            RedisCacheArchivesRoom redisCacheArchivesRoom = new RedisCacheArchivesRoom();
-            redisCacheArchivesRoom.setCacheStrategy(cacheStrategy);
+            RedisCacheArchivesRoom redisCacheArchivesRoom = new RedisCacheArchivesRoom(properties);
             return redisCacheArchivesRoom;
         } else throw new IllegalArgumentException(room + " illegal archivers room");
     }

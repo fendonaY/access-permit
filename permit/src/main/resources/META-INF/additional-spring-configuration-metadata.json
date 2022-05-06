@@ -1,7 +1,7 @@
 {
   "hints": [
     {
-      "name": "permission.verify-repository.repository",
+      "name": "permit.verify-repository.repository",
       "values": [
         {
           "value": "db",
@@ -18,7 +18,7 @@
       ]
     },
     {
-      "name": "permission.archives-room.room",
+      "name": "permit.archives-room.room",
       "values": [
         {
           "value": "local",
@@ -31,7 +31,7 @@
       ]
     },
     {
-      "name": "permission.archives-room.cache-strategy",
+      "name": "permit.archives-room.cache-strategy",
       "values": [
         {
           "value": "default",

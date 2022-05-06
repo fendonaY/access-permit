@@ -1,28 +1,20 @@
 package com.yyp.permit.demo.service.impl;
 
-import com.yyp.permit.context.PermitContext;
-import com.yyp.permit.context.PermitManager;
-import com.yyp.permit.demo.model.StockBo;
-import com.yyp.permit.demo.model.UserBo;
 import com.yyp.permit.demo.model.dto.BuyGoodsDto;
 import com.yyp.permit.demo.service.StockService;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
-
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class StockServiceImpl implements StockService {
 
     @Override
     public void buy(BuyGoodsDto buyGoodsDto) {
-        PermitContext permitContext = PermitManager.getPermitToken().getPermissionContext();
-        List<Map<String, Object>> buyGoods = permitContext.getValidResultObject("buyGoods");
-        Assert.notEmpty(buyGoods, "拒绝处理");
-        Map<String, Object> validResult = buyGoods.get(0);
-        UserBo user = (UserBo) validResult.get("user");
-        StockBo stock = (StockBo) validResult.get("stock");
+//        PermitContext permitContext = PermitManager.getPermitToken().getPermissionContext();
+//        List<Map<String, Object>> buyGoods = permitContext.getValidResultObject("buyGoods");
+//        Assert.notEmpty(buyGoods, "拒绝处理");
+//        Map<String, Object> validResult = buyGoods.get(0);
+//        UserBo user = (UserBo) validResult.get("user");
+//        StockBo stock = (StockBo) validResult.get("stock");
 
         //生成订单
 

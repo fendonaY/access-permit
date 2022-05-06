@@ -17,24 +17,19 @@ public class DefaultVerifier implements Verifier {
     }
 
     @Override
-    public void prepareVerify(PermitContext permitContext, String permit) {
-        PermitInfo permitInfo = permitContext.getPermissionInfo();
-        PermitAnnotationInfo annotationInfo = permitInfo.getAnnotationInfo(permit);
-        VerifyReport verifyReport = permitContext.getReport(permit);
-        if (verifyReport.getValidResult() == null)
-            VerifierHelper.findValidData(verifyReport, permitInfo, annotationInfo);
+    public void prepareVerify(PermitContext permitContext, VerifyReport verifyReport) {
+        verifyReport.setPhase(PermitToken.PermissionPhase.PREPARE);
     }
 
     @Override
-    public boolean verify(VerifyReport verifyReport, PermitInfo permitInfo, String permit) {
+    public boolean verify(PermitContext permitContext, VerifyReport verifyReport) {
         if (verifyReport.getValidResult() == null)
             verifyTemplate.validParams(verifyReport);
         return verifyReport.getValidResult();
     }
 
     @Override
-    public void finishVerify(PermitContext permitContext, String permit) {
-        VerifyReport report = permitContext.getReport(permit);
-        report.setPhase(PermitToken.PermissionPhase.VERIFIED);
+    public void finishVerify(PermitContext permitContext, VerifyReport verifyReport) {
+        verifyReport.setPhase(PermitToken.PermissionPhase.VERIFIED);
     }
 }

@@ -1,10 +1,17 @@
 package com.yyp.permit.context;
 
 import com.yyp.permit.aspect.RejectStrategy;
+import com.yyp.permit.dept.room.VerifyReport;
+import lombok.Data;
+import org.springframework.util.Assert;
 
+import java.util.Map;
+import java.util.Optional;
+
+@Data
 public class PermitToken {
     public enum PermissionPhase {
-        REGISTER, VERIFIED
+        REGISTER, PREPARE,VERIFIED
     }
 
     private PermitContext permitContext;
@@ -19,9 +26,7 @@ public class PermitToken {
 
     private String explain;
 
-    public PermitContext getPermissionContext() {
-        return this.permitContext;
-    }
+    private Map<String, VerifyReport> recordStore;
 
     public void putPePermissionContext(PermitContext permitContext) {
         this.permitContext = permitContext;
@@ -52,43 +57,9 @@ public class PermitToken {
         this.explain = explain;
     }
 
-    public PermitToken getOldPermitToken() {
-        return oldPermitToken;
-    }
-
-    public void setOldPermitToken(PermitToken oldPermitToken) {
-        this.oldPermitToken = oldPermitToken;
-    }
-
-    public boolean isVerify() {
-        return verify;
-    }
-
-    public void setVerify(boolean verify) {
-        this.verify = verify;
-    }
-
-    public PermissionPhase getPhase() {
-        return phase;
-    }
-
-    public void setPhase(PermissionPhase phase) {
-        this.phase = phase;
-    }
-
-    public RejectStrategy getRejectStrategy() {
-        return rejectStrategy;
-    }
-
-    public void setRejectStrategy(RejectStrategy rejectStrategy) {
-        this.rejectStrategy = rejectStrategy;
-    }
-
-    public String getExplain() {
-        return explain;
-    }
-
-    public void setExplain(String explain) {
-        this.explain = explain;
+    public VerifyReport getVerifyReport(String permit) {
+        VerifyReport verifyReport = Optional.ofNullable(this.getRecordStore()).map(recordStore -> recordStore.get(permit)).orElse(null);
+        Assert.notNull(verifyReport, permit + " archives doesn't exist");
+        return verifyReport;
     }
 }

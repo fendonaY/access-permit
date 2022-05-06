@@ -1,8 +1,9 @@
-package com.yyp.permit.dept.room;
+package com.yyp.permit.dept;
 
 import com.yyp.permit.context.PermitContext;
 import com.yyp.permit.context.PermitInfo;
 import com.yyp.permit.context.PermitToken;
+import com.yyp.permit.dept.room.VerifyReport;
 import com.yyp.permit.dept.verifier.Verifier;
 
 import java.util.List;

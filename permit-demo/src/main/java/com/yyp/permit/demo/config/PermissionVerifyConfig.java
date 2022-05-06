@@ -5,9 +5,11 @@ import com.yyp.permit.demo.model.StockBo;
 import com.yyp.permit.demo.model.UserBo;
 import com.yyp.permit.demo.model.dto.BuyGoodsDto;
 import com.yyp.permit.dept.verifier.FunctionalVerify;
+import com.yyp.permit.dept.verifier.VerifyTemplate;
 import com.yyp.permit.dept.verifier.repository.AbstractVerifyRepository;
 import com.yyp.permit.dept.verifier.repository.VerifyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.Assert;
 
@@ -17,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@AutoConfigureAfter(VerifyTemplate.class)
 public class PermissionVerifyConfig {
 
     private VerifyRepository verifyRepository;
@@ -26,6 +29,7 @@ public class PermissionVerifyConfig {
     @PostConstruct
     public void initVerifyRepository() {
         AbstractVerifyRepository verifyRepository = getVerifyRepository();
+        verifyRepository.initRepository();
         checkBuyGoods(verifyRepository);
         checkExistUser(verifyRepository);
     }

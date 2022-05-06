@@ -8,7 +8,7 @@ import com.yyp.permit.context.PermitContext;
 import com.yyp.permit.context.PermitInfo;
 import com.yyp.permit.context.PermitManager;
 import com.yyp.permit.context.PermitToken;
-import com.yyp.permit.dept.room.SecurityDept;
+import com.yyp.permit.dept.SecurityDept;
 import com.yyp.permit.exception.PermitException;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;

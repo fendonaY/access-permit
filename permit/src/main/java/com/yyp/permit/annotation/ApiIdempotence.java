@@ -14,7 +14,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
  * @author yyp
  * @description:接口幂等性限制 </p>
  * 底层实现为redisson 参考官方文档{@literal https://github.com/redisson/redisson?_ga=2.201175786.575262349.1622114659-2121655372.1622114659}
- * @date 2021/5/2714:00
  */
 @Target({TYPE, METHOD})
 @Retention(RUNTIME)

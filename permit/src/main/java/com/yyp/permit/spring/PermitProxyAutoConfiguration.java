@@ -1,7 +1,7 @@
 package com.yyp.permit.spring;
 
 import com.yyp.permit.aspect.PermissionInterceptor;
-import com.yyp.permit.dept.room.SecurityDept;
+import com.yyp.permit.dept.SecurityDept;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;

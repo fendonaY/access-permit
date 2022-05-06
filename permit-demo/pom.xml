@@ -22,6 +22,14 @@
             <artifactId>springboot-starter-permit</artifactId>
             <version>1.0.1</version>
         </dependency>
+        <dependency>
+            <groupId>com.yyp.ulog</groupId>  <!--自定义-->
+            <artifactId>ulog</artifactId>    <!--自定义-->
+            <version>1.0.1</version> <!--自定义-->
+            <scope>system</scope> <!--system，类似provided，需要显式提供依赖的jar以后，Maven就不会在Repository中查找它-->
+            <systemPath>${basedir}/src/main/lib/springboot-starter-ulog-1.0.1.jar</systemPath> <!--项目根目录下的lib文件夹下-->
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -41,20 +49,6 @@
                 <configuration>
                     <skip>true</skip>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <includeSystemScope>true</includeSystemScope>
-                </configuration>PostProcessorRegistrationDelegate$BeanPostProcessorChecker
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

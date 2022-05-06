@@ -1,34 +1,53 @@
 package com.yyp.permit.dept.room;
 
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.yyp.permit.context.Rubbish;
+import com.yyp.permit.spring.PermitProperties;
 import com.yyp.permit.util.ParamUtil;
 import lombok.Getter;
 import org.redisson.api.RedissonClient;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.NamedThreadLocal;
 
-import java.util.HashMap;
-import java.util.Map;
+import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 public class RedisCacheArchivesRoom extends AbstractArchivesRoom {
 
-    private NamedThreadLocal<Map<String, CacheInfo>> cache = new NamedThreadLocal("currentArchiversStore");
+    private final Integer verify_pass = 0;
 
-    private final Integer VERIFY_PASS = 0;
+    private final Integer verify_reject = 1;
 
-    private final Integer VERIFY_REJECT = 1;
+    private final String cachePrefix = "ARCHIVES_ROOM:$1_$2";
 
-    private String cacheStrategy;
+    private String cacheStrategy = CacheStrategy.NORMAL.getStrategy();
 
-    @Autowired(required = false)
+    @Resource
     private RedissonClient redissonClient;
+
+    /**
+     * 缓存最小时间
+     */
+    private long minCacheTime;
+
+    /**
+     * 缓存最大时间
+     */
+    private long maxCacheTime;
+
+    /**
+     * 缓存时间单位
+     */
+    private TimeUnit timeUnit;
 
     public RedisCacheArchivesRoom() {
     }
 
-    public RedisCacheArchivesRoom(RedissonClient redissonClient) {
-        this.redissonClient = redissonClient;
+    public RedisCacheArchivesRoom(PermitProperties permitProperties) {
+        PermitProperties.ArchivesRoomProperties archivesRoom = permitProperties.getArchivesRoom();
+        this.cacheStrategy = archivesRoom.getCacheStrategy();
+        this.maxCacheTime = permitProperties.getMaxCacheTime();
+        this.minCacheTime = permitProperties.getMinCacheTime();
+        this.timeUnit = permitProperties.getTimeUnit();
     }
 
     public String getCacheStrategy() {
@@ -41,83 +60,68 @@ public class RedisCacheArchivesRoom extends AbstractArchivesRoom {
 
     @Override
     public String getReportId(VerifyReport verifyReport) {
+        if (verifyReport.getValidData() == null) {
+            return IdUtil.simpleUUID();
+        }
         return ParamUtil.getKeyMD5(verifyReport.getPermit(), verifyReport.getValidData());
     }
 
     @Override
-    Map<String, VerifyReport> getArchiversStore(String cacheKey) {
-        Map<String, Object> currentArchiversStore = getCurrentArchiversStore(cacheKey);
-        Map<String, VerifyReport> result = new HashMap<>(currentArchiversStore.size());
-        currentArchiversStore.forEach((key, value) -> {
-            String strValue = String.valueOf(value);
-            if (strValue.length() == 1) {
-                VerifyReport verifyReport = new VerifyReport();
-                IdInfo idInfo = parseId(key);
-                verifyReport.setId(key);
-                verifyReport.setPermit(idInfo.getPermit());
-                verifyReport.setArchive(true);
-                verifyReport.setCurrent(false);
-                verifyReport.setValidResult(VERIFY_REJECT.equals(value) ? Boolean.FALSE : Boolean.TRUE);
-                result.put(key, verifyReport);
-            } else
-                result.put(key, JSONObject.parseObject(strValue, VerifyReport.class));
-        });
-        return result;
+    protected String getCacheKey(VerifyReport verifyReport) {
+        return cachePrefix.replace("$1", verifyReport.getPermit()).replace("$2", verifyReport.getId());
+    }
+
+    @Override
+    protected VerifyReport getArchiversStore(String cacheKey) {
+        return decode(cacheKey);
     }
 
     @Override
     public void putCache(VerifyReport verifyReport) {
-        Map<String, Object> cache = getCurrentArchiversStore(getCacheKey(verifyReport));
-        if ("simple".equals(cacheStrategy))
-            cache.putIfAbsent(verifyReport.getId(), verifyReport.getValidResult() ? VERIFY_PASS : VERIFY_REJECT);
-        cache.putIfAbsent(verifyReport.getId(), JSONObject.toJSONString(verifyReport));
+        redissonClient.getBucket(getCacheKey(verifyReport)).set(encode(verifyReport), RandomUtil.getRandom().nextLong(minCacheTime, maxCacheTime), timeUnit);
     }
 
-    @Override
-    public Rubbish produceRubbish() {
-        return () -> {
-            try {
-                super.produceRubbish().clear();
-            } finally {
-                cache.remove();
-            }
-        };
+    private VerifyReport decode(String cacheKey) {
+        Object o = redissonClient.getBucket(cacheKey).get();
+        if (o == null)
+            return null;
+        if (CacheStrategy.SIMPLE.getStrategy().equals(cacheStrategy)) {
+            VerifyReport report = new VerifyReport();
+            IdInfo idInfo = parseId(cacheKey);
+            report.setId(idInfo.getId());
+            report.setPermit(idInfo.getPermit());
+            report.setArchive(true);
+            report.setValidResult(verify_reject.equals(o) ? Boolean.FALSE : Boolean.TRUE);
+            return report;
+        } else {
+            return JSONObject.parseObject(String.valueOf(o), VerifyReport.class);
+        }
     }
 
-    private Map<String, Object> getCurrentArchiversStore(String cacheKey) {
-        if (cache.get() == null) {
-            cache.set(new HashMap<>());
+    private Object encode(VerifyReport verifyReport) {
+        if (CacheStrategy.SIMPLE.getStrategy().equals(cacheStrategy)) {
+            return verifyReport.getValidResult() ? verify_pass : verify_reject;
+        } else {
+            return JSONObject.toJSONString(verifyReport);
         }
-        if (!cache.get().containsKey(cacheKey)) {
-            CacheInfo cacheInfo = new CacheInfo(cacheKey, redissonClient.getMap(cacheKey));
-            cache.get().put(cacheKey, cacheInfo);
-        }
-        return cache.get().get(cacheKey).getCache();
     }
 
     private IdInfo parseId(String reportId) {
-        String[] split = reportId.split("\\$\\$");
+        String[] split = reportId.split("\\$1\\$");
         return new IdInfo(split[0], split[1]);
     }
 
     @Getter
-    private class CacheInfo {
+    private enum CacheStrategy {
 
-        private String cacheKey;
+        SIMPLE("simple"),
 
-        private Map<String, Object> cache;
+        NORMAL("normal");
 
-        public CacheInfo(String cacheKey, Map<String, Object> cache) {
-            this.cacheKey = cacheKey;
-            this.cache = cache;
-        }
+        private String strategy;
 
-        public String getCacheKey() {
-            return cacheKey;
-        }
-
-        public Map<String, Object> getCache() {
-            return cache;
+        CacheStrategy(String strategy) {
+            this.strategy = strategy;
         }
     }
 

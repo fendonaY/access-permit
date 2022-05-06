@@ -1,6 +1,6 @@
 package com.yyp.permit.context;
 
-import com.yyp.permit.dept.room.SecurityDept;
+import com.yyp.permit.dept.SecurityDept;
 import com.yyp.permit.dept.room.VerifyReport;
 
 import java.util.List;
@@ -22,7 +22,7 @@ public class DefaultPermitContext implements PermitContext {
 
     @Override
     public List<String> getPermits() {
-        return getPermissionInfo().getAnnotationInfoList().stream().map(info -> info.getPermit()).collect(Collectors.toList());
+        return getPermitInfo().getAnnotationInfoList().stream().map(info -> info.getPermit()).collect(Collectors.toList());
     }
 
     @Override
@@ -56,11 +56,11 @@ public class DefaultPermitContext implements PermitContext {
         this.securityDept = securityDept;
     }
 
-    public PermitInfo getPermissionInfo() {
+    public PermitInfo getPermitInfo() {
         return this.permitInfo;
     }
 
-    public void setPermissionInfo(PermitInfo permitInfo) {
+    public void setPermitInfo(PermitInfo permitInfo) {
         this.permitInfo = permitInfo;
     }
 }

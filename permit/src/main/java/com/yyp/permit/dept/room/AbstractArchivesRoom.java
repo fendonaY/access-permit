@@ -1,33 +1,29 @@
 package com.yyp.permit.dept.room;
 
-import cn.hutool.core.util.IdUtil;
 import com.yyp.permit.annotation.parser.PermitAnnotationInfo;
 import com.yyp.permit.context.*;
-import org.springframework.beans.BeanUtils;
+import com.yyp.permit.dept.verifier.VerifierHelper;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
+import org.springframework.util.ObjectUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
 
-    private NamedThreadLocal<Map<String, VerifyReport>> currentRecordStore = new NamedThreadLocal<>("currentArchives");
-
-    private NamedThreadLocal<Map<String, VerifyReport>> recordStore = new NamedThreadLocal<>("archives");
-
-    private NamedThreadLocal<Map<PermitToken, Map<String, Set<String>>>> permitReportIdMap = new NamedThreadLocal<>("permitToken report id map");
-
-    private final String cachePrefix = "ARCHIVES_ROOM@$1_$2";
+    private NamedThreadLocal<List<VerifyReport>> recordStore = new NamedThreadLocal<>("archives");
 
     @Override
     public List<VerifyReport> register(PermitInfo permitInfo) {
         putInRecycleBin();
         return permitInfo.getAnnotationInfoList().stream().map(info -> {
             VerifyReport report = getReport(permitInfo, info);
-            Map<String, VerifyReport> archiversStore = getArchiversStore(report);
-            archiversStore.forEach((key, value) -> setCurrentRecordStore(info.getPermit(), value));
-            setCurrentRecordStore(info.getPermit(), report);
+            VerifyReport archiversStore = getArchiversStore(report);
+            setCurrentRecordStore(info.getPermit(), archiversStore);
             return report;
         }).collect(Collectors.toList());
     }
@@ -36,46 +32,17 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
         VerifyReport verifyReport = new VerifyReport(annotationInfo.getPermit());
         verifyReport.setAnnotationInfo(annotationInfo);
         verifyReport.setSuggest(annotationInfo.getMessage());
-        verifyReport.setCurrent(true);
         verifyReport.setTargetClass(permitInfo.getTargetClass());
         verifyReport.setTargetMethod(permitInfo.getTargetMethod());
         verifyReport.setTargetObj(permitInfo.getTargetObj());
         verifyReport.setArguments(permitInfo.getArguments());
-        verifyReport.setId(IdUtil.randomUUID());
         return verifyReport;
     }
 
     @Override
     public VerifyReport getVerifyReport(String permit) {
-        Set<String> ids = getPermitReportIdMap(permit);
-        Map<String, VerifyReport> currentRecordStore = getCurrentRecordStore();
-        List<VerifyReport> current = ids.stream().map(id -> currentRecordStore.get(id)).filter(report -> report != null && report.isCurrent()).collect(Collectors.toList());
-        if (current.isEmpty()) {
-            Map<String, VerifyReport> recordStore = getRecordStore();
-            current = ids.stream().map(id -> recordStore.get(id)).filter(report -> report != null).collect(Collectors.toList());
-        }
-        Assert.state(!current.isEmpty(), permit + " archives doesn't exist");
-        Assert.isTrue(current.size() == 1, permit + " has multiple(" + current.size() + ") current archives");
-        return current.get(0);
-    }
-
-    @Override
-    public VerifyReport getVerifyReport(String permit, String reportId) {
-        VerifyReport verifyReport = getCurrentRecordStore().get(reportId);
-        if (verifyReport == null) {
-            verifyReport = getRecordStore().get(reportId);
-        }
-        Assert.notNull(verifyReport, permit + " archives doesn't exist");
-        return verifyReport;
-    }
-
-    @Override
-    public void update(VerifyReport oldReport, VerifyReport newReport) {
-        Map<String, VerifyReport> currentRecordStore = getCurrentRecordStore();
-        Set<String> permitReportIdMap = getPermitReportIdMap(oldReport.getPermit());
-        permitReportIdMap.remove(oldReport.getId());
-        currentRecordStore.remove(oldReport.getId());
-        setCurrentRecordStore(newReport.getPermit(), newReport);
+        PermitToken permitToken = PermitManager.getOfNonNullPermitToken();
+        return permitToken.getVerifyReport(permit);
     }
 
     @Override
@@ -86,20 +53,22 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
             return;
         if (annotationInfo.isValidCache()) {
             verifyReport.setArchive(true);
-            verifyReport.setCurrent(false);
             putCache(verifyReport);
         }
     }
 
-    public abstract void putCache(VerifyReport verifyReport);
-
     @Override
     public void remove(String permit) {
-        Set<String> ids = getPermitReportIdMap().remove(permit);
-        if (ids != null) {
-            Map<String, VerifyReport> recordStore = getRecordStore();
-            ids.forEach(id -> recordStore.remove(id));
+        PermitToken permitToken = PermitManager.getOfNonNullPermitToken();
+        Map<String, VerifyReport> recordStore = permitToken.getRecordStore();
+        if (ObjectUtils.isEmpty(recordStore)) {
+            recordStore.remove(permit);
         }
+    }
+
+    @Override
+    public List<VerifyReport> getVerifyReportList() {
+        return getRecordStore();
     }
 
     @Override
@@ -108,82 +77,53 @@ public abstract class AbstractArchivesRoom implements ArchivesRoom, RecycleBin {
             try {
                 doArchive();
             } finally {
-                permitReportIdMap.remove();
                 recordStore.remove();
-                currentRecordStore.remove();
             }
         };
     }
 
     protected final void doArchive() {
-        Map<String, VerifyReport> recordStore = this.getRecordStore();
-        if (recordStore != null && !recordStore.isEmpty()) {
-            recordStore.forEach((permit, report) -> archive(report));
+        List<VerifyReport> recordStore = this.getRecordStore();
+        if (!ObjectUtils.isEmpty(recordStore)) {
+            recordStore.forEach(report -> archive(report));
         }
     }
 
     public void setCurrentRecordStore(String permit, VerifyReport verifyReport) {
-        Set<String> permitReportIdMap = getPermitReportIdMap(permit);
-        permitReportIdMap.add(verifyReport.getId());
-        Map<String, VerifyReport> currentRecordStore = getCurrentRecordStore();
-        currentRecordStore.compute(verifyReport.getId(), (key, oldValue) -> {
-            if (oldValue != null) {
-                BeanUtils.copyProperties(verifyReport, oldValue, "archive", "validResult");
-                oldValue.setCurrent(true);
-                return oldValue;
-            }
-            return verifyReport;
-        });
+        PermitToken permitToken = PermitManager.getOfNonNullPermitToken();
+        Map<String, VerifyReport> recordStore = permitToken.getRecordStore();
+        if (recordStore == null) {
+            recordStore = new HashMap<>();
+            permitToken.setRecordStore(recordStore);
+        }
+        if (verifyReport.getValidResult() == null) {
+            VerifierHelper.findValidData(verifyReport);
+            verifyReport.setId(getReportId(verifyReport));
+        }
+        recordStore.put(permit, verifyReport);
+        getRecordStore().add(verifyReport);
     }
 
-    public void setRecordStore(String permit, VerifyReport verifyReport) {
-        getCurrentRecordStore().remove(verifyReport.getId());
-        verifyReport.setCurrent(false);
-        getRecordStore().putIfAbsent(verifyReport.getId(), verifyReport);
-    }
-
-    public Map<String, VerifyReport> getCurrentRecordStore() {
-        if (this.currentRecordStore.get() == null)
-            this.currentRecordStore.set(new HashMap<>());
-        return currentRecordStore.get();
-    }
-
-    protected Map<String, VerifyReport> getRecordStore() {
+    protected List<VerifyReport> getRecordStore() {
         if (this.recordStore.get() == null)
-            this.recordStore.set(new HashMap<>());
+            this.recordStore.set(new ArrayList<>());
         return recordStore.get();
     }
 
-    protected Map<String, Set<String>> getPermitReportIdMap() {
-        PermitToken permitToken = PermitManager.getPermitToken();
-        if (this.permitReportIdMap.get() == null) {
-            this.permitReportIdMap.set(new HashMap<>());
-        }
-        Map<String, Set<String>> permitIdMap = permitReportIdMap.get().get(permitToken);
-        if (permitIdMap == null) {
-            this.permitReportIdMap.get().put(permitToken, new HashMap<>());
-        }
-        return permitReportIdMap.get().get(permitToken);
+    private final VerifyReport getArchiversStore(VerifyReport verifyReport) {
+        VerifyReport archiverReport = getArchiversStore(getCacheKey(verifyReport));
+        return archiverReport != null ? archiverReport : verifyReport;
     }
 
-    protected Set<String> getPermitReportIdMap(String permit) {
-        getPermitReportIdMap().putIfAbsent(permit, new HashSet<>());
-        return getPermitReportIdMap().get(permit);
-    }
+    /**
+     * 获取档案id
+     */
+    protected abstract String getReportId(VerifyReport verifyReport);
 
-    public String getReportId(VerifyReport verifyReport) {
-        return UUID.randomUUID().toString().replace("-", "");
-    }
+    protected abstract VerifyReport getArchiversStore(String cacheKey);
 
-    protected final Map<String, VerifyReport> getArchiversStore(VerifyReport verifyReport) {
-        return getArchiversStore(getCacheKey(verifyReport));
-    }
+    protected abstract String getCacheKey(VerifyReport verifyReport);
 
-    abstract Map<String, VerifyReport> getArchiversStore(String cacheKey);
-
-    protected String getCacheKey(VerifyReport verifyReport) {
-        String name = verifyReport.getTargetClass().getName();
-        return cachePrefix.replace("$1", verifyReport.getPermit()).replace("$2", name + "." + verifyReport.getTargetMethod().getName());
-    }
+    protected abstract void putCache(VerifyReport verifyReport);
 }
 
